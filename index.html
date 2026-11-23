@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Vehicle Maintenance & Spare Parts Management System</title>
+<title>X Ceramics Ltd (Automobile)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -40,6 +40,12 @@ const OIL_SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
   };
 </script>
 <style>
+/* Permission chips: selected = green */
+.perm-chip{padding:6px 8px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.perm-chip input[type=checkbox]{accent-color:#16a34a;width:16px;height:16px;flex-shrink:0;cursor:pointer}
+.perm-chip:hover{border-color:#86efac}
+.perm-chip:has(input:checked){background:#dcfce7;border-color:#16a34a;color:#166534;font-weight:600}
+
   body{background:#f4f6f9;font-family:Inter,'Segoe UI',Roboto,Helvetica,Arial,'Noto Sans','Apple Color Emoji','Segoe UI Emoji',sans-serif;color:#0f2540}
   .sidebar-link.active{background:rgba(255,255,255,.12);border-left:3px solid #14b8a6}
   .sidebar-link:hover{background:rgba(255,255,255,.07)}
@@ -68,6 +74,9 @@ const OIL_SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
   body input::placeholder,body textarea::placeholder{color:#64748b;opacity:1}
   body table.data td{color:#0f172a}
   body table.data th{color:#0f172a;font-weight:700}
+  .hm-card{text-decoration:none;color:inherit}
+  .hm-card:hover{border-color:color-mix(in srgb,var(--c) 45%,#e2e8f0)}
+  .hdr-line{height:2px;background:linear-gradient(90deg,#0d9488,#2563eb 55%,#9333ea)}
   /* dark sidebar: keep text light */
   body aside .text-slate-200{color:#f8fafc}
   body aside .text-slate-300{color:#e2e8f0}
@@ -83,12 +92,12 @@ const OIL_SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-navy-900 via-navy-800 to-navy-700">
   <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
     <div class="flex items-center gap-3 mb-6">
-      <div class="w-10 h-10 rounded-lg bg-teal-500 flex items-center justify-center text-white">
-        <i data-lucide="truck" class="w-6 h-6"></i>
+      <div class="relative w-10 h-10 rounded-lg bg-teal-500 flex items-center justify-center text-white">
+        <i data-lucide="truck" class="w-6 h-6"></i><img src="logo.png" alt="" class="absolute inset-0 w-full h-full object-contain bg-white rounded-lg" onerror="this.remove()">
       </div>
       <div>
-        <h1 class="text-lg font-bold text-navy-900">VM & Spare Parts</h1>
-        <p class="text-xs text-slate-500">Management System</p>
+        <h1 class="text-lg font-bold text-navy-900">X Ceramics Ltd (Automobile)</h1>
+        <p class="text-xs text-slate-500">Concept of ROM</p>
       </div>
     </div>
     <h2 class="text-xl font-semibold mb-1">Sign in</h2>
@@ -116,49 +125,35 @@ const OIL_SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 <!-- =================================================================
      APP SHELL
      ================================================================= -->
-<div id="app" class="hidden min-h-screen flex">
-
-  <!-- Sidebar -->
-  <aside id="sidebar" class="w-64 bg-navy-900 text-slate-200 flex flex-col fixed inset-y-0 left-0 z-40 transform -translate-x-full lg:translate-x-0 transition-transform">
-    <div class="h-16 flex items-center gap-3 px-5 border-b border-white/10">
-      <div class="w-9 h-9 rounded-lg bg-teal-500 flex items-center justify-center text-white">
-        <i data-lucide="truck" class="w-5 h-5"></i>
-      </div>
-      <div>
-        <div class="text-sm font-semibold leading-tight">VM & Spare Parts</div>
-        <div class="text-[10px] text-slate-400">Management System</div>
-      </div>
-    </div>
-    <nav id="sidebarNav" class="flex-1 overflow-y-auto scroll-thin py-3 px-2 text-sm"></nav>
-    <div class="px-3 py-3 border-t border-white/10">
-      <div id="sidebarUser" class="text-xs text-slate-300 mb-2"></div>
-      <button onclick="logout()" class="w-full flex items-center gap-2 text-xs text-slate-300 hover:text-white hover:bg-white/10 rounded-lg px-3 py-2">
-        <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+<div id="app" class="hidden min-h-screen flex flex-col">
+  <!-- Top bar: brand + page switcher only -->
+  <header class="bg-white sticky top-0 z-40">
+    <div class="h-16 flex items-center justify-between px-4 lg:px-8">
+      <button type="button" onclick="route('home')" class="flex items-center gap-3 text-left" title="Home - all applications">
+        <span class="relative w-9 h-9 rounded-lg bg-teal-500 flex items-center justify-center text-white"><i data-lucide="truck" class="w-5 h-5"></i><img src="logo.png" alt="" class="absolute inset-0 w-full h-full object-contain bg-white rounded-lg" onerror="this.remove()"></span>
+        <span class="h-8 w-px bg-slate-200"></span>
+        <span class="leading-tight"><span id="pageTitle" class="block text-[15px] font-bold text-navy-900">X Ceramics Ltd (Automobile)</span>
+          <span id="pageSub" class="block text-xs text-slate-500">Concept of ROM</span></span>
       </button>
-    </div>
-  </aside>
-
-  <!-- Main -->
-  <div class="flex-1 min-w-0 lg:ml-64 flex flex-col min-h-screen">
-    <!-- Topbar -->
-    <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
-      <div class="flex items-center gap-3">
-        <button onclick="toggleSidebar()" class="lg:hidden text-slate-600">
-          <i data-lucide="menu" class="w-6 h-6"></i>
-        </button>
-        <h1 id="pageTitle" class="text-base font-semibold text-navy-900">Dashboard</h1>
-      </div>
-      <div class="flex items-center gap-3">
-        <span id="topDept" class="hidden md:inline text-xs px-2.5 py-1 rounded-full bg-teal-50 text-teal-700 font-medium"></span>
-        <div class="relative">
-          <button class="w-9 h-9 rounded-full bg-navy-800 text-white flex items-center justify-center text-xs font-semibold" id="avatarBtn"></button>
+      <div class="relative">
+        <button id="swBtn" type="button" onclick="toggleSwitcher(event)" title="Switch page" aria-label="Switch page" class="w-10 h-10 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-700"><i data-lucide="layout-grid" class="w-5 h-5"></i></button>
+        <div id="swPanel" class="hidden absolute right-0 top-12 w-[min(360px,calc(100vw-1.5rem))] bg-white border border-slate-200 rounded-xl shadow-2xl z-50">
+          <div class="p-3 border-b border-slate-100 flex items-center gap-2">
+            <button type="button" onclick="swGo('home')" class="flex items-center gap-2 text-sm font-medium text-teal-700 hover:bg-teal-50 rounded-lg px-2.5 py-2 whitespace-nowrap"><i data-lucide="home" class="w-4 h-4"></i> All applications</button>
+            <input id="swSearch" type="text" autocomplete="off" placeholder="Find a page…" oninput="swFilter(this.value)" class="flex-1 min-w-0 border border-slate-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-teal-500"/>
+          </div>
+          <div id="swList" class="p-2 max-h-[60vh] overflow-y-auto scroll-thin"></div>
+          <div class="p-3 border-t border-slate-100 flex items-center justify-between gap-3 text-xs">
+            <div id="swUser" class="min-w-0"></div>
+            <button type="button" onclick="logout()" title="Logout" aria-label="Logout" class="shrink-0 p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+          </div>
         </div>
       </div>
-    </header>
-
-    <!-- Page container -->
-    <main id="page" class="flex-1 p-4 lg:p-6 overflow-x-auto"></main>
-  </div>
+    </div>
+    <div class="hdr-line"></div>
+  </header>
+  <!-- Page container -->
+  <main id="page" class="flex-1 p-4 lg:p-8 overflow-x-auto"></main>
 </div>
 
 <!-- Toast -->
@@ -216,31 +211,36 @@ function clearSession(){ localStorage.removeItem(SESSION_KEY); }
    ============================================================ */
 let currentUser = null;     // profile row
 let permissions = null;     // user_permissions row
-let SIDEBAR_OPEN_MOBILE = false;
 
 const PAGES = {
   dashboard:             {label:'Dashboard',                  icon:'layout-dashboard', group:'Main',                key:'dash_main'},
   vehicle_maintenance:   {label:'Vehicle Maintenance',        icon:'wrench',           group:'Automobile Department',key:'dash_vehicle_maintenance'},
-  pending_maintenance:   {label:'Pending Maintenance',        icon:'clock',            group:'Automobile Department',key:'dash_pending_maintenance'},
+  pending_maintenance:   {label:'Pending Maintenance',        icon:'hourglass',            group:'Automobile Department',key:'dash_pending_maintenance'},
   item_requirement:      {label:'Item Requirement Submission',icon:'package-plus',     group:'Automobile Department',key:'dash_item_requirement'},
   maintenance_history:   {label:'Maintenance History',        icon:'history',          group:'Automobile Department',key:'dash_maintenance_history'},
   rom:                   {label:'ROM',                         icon:'clipboard-check',  group:'ROM Department',       key:'dash_rom'},
   supply_chain:          {label:'Supply Chain Management',    icon:'truck',            group:'Supply Chain Department',key:'dash_supply_chain'},
-  de_record:             {label:'Filter Change Record',       icon:'file-plus',        group:'Data Entry Department',key:'dash_data_entry'},
-  de_history:            {label:'Filter Change History',      icon:'history',          group:'Data Entry Department',key:'dash_data_entry'},
-  oil_record:            {label:'Oil Entry',                  icon:'droplets',         group:'Data Entry Department',key:'dash_data_entry'},
-  oil_history:           {label:'Oil Change History',         icon:'history',          group:'Data Entry Department',key:'dash_data_entry'},
-  other_record:          {label:'Other Item Replacement',     icon:'settings-2',       group:'Data Entry Department',key:'dash_data_entry'},
-  other_history:         {label:'Other Replacement History',  icon:'history',          group:'Data Entry Department',key:'dash_data_entry'},
-  maint_calendar:        {label:'Maintenance Schedule Calendar',icon:'calendar-days',  group:'Automobile Department',key:'dash_maint_calendar'},
+  de_record:             {label:'Filter Entry',               icon:'cylinder',        group:'Data Entry Department',key:'dash_data_entry'},
+  de_data:               {label:'Filter Change Data',         icon:'replace',            group:'Data Entry Department',key:'dash_data_entry'},
+  oil_record:            {label:'Oil Entry',                  icon:'droplet',         group:'Data Entry Department',key:'dash_data_entry'},
+  oil_data:              {label:'Oil Change Data',            icon:'droplets',            group:'Data Entry Department',key:'dash_data_entry'},
+  other_record:          {label:'Other Entry',                icon:'cog',       group:'Data Entry Department',key:'dash_data_entry'},
+  other_data:            {label:'Spare Change Data',          icon:'package-check',            group:'Data Entry Department',key:'dash_data_entry'},
+    maint_calendar:        {label:'Maintenance Schedule Calendar',icon:'calendar-days',  group:'Automobile Department',key:'dash_maint_calendar'},
+  maint_overdue:         {label:'Overdue Vehicles',           icon:'alert-triangle',   group:'Automobile Department',key:'dash_maint_calendar'},
+  vehicle_status:        {label:'Vehicle Status',            icon:'gauge',            group:'Automobile Department',key:'dash_maint_calendar', noPg:true},
   maint_settings:        {label:'Maintenance Interval Settings',icon:'sliders-horizontal',group:'Master Data',   key:'dash_maint_settings'},
   diesel_consumption:    {label:'Diesel Consumption',         icon:'fuel',             group:'Data Entry Department',key:'dash_data_entry'},
   item_master:           {label:'Item Master',                icon:'boxes',            group:'Master Data',          key:'dash_item_master'},
   qr_codes:              {label:'Create & Generate QR Codes', icon:'qr-code',          group:'Master Data',          key:'dash_vehicle_master'},
   filter_dashboard:      {label:'Filter Change Dashboard',    icon:'bar-chart-3',      group:'Master Data',          key:'dash_vehicle_master'},
+  de_history:            {label:'Filter Change History',      icon:'file-clock',          group:'Master Data',          key:'dash_vehicle_master'},
+  oil_history:           {label:'Oil Change History',         icon:'timer-reset',          group:'Master Data',          key:'dash_vehicle_master'},
+  other_history:         {label:'Other Replacement History',  icon:'calendar-clock',          group:'Master Data',          key:'dash_vehicle_master'},
   reports:               {label:'Reports',                    icon:'bar-chart-3',      group:'Reports',              key:'dash_reports'},
   user_access:           {label:'User Access',                icon:'users',            group:'Settings',             key:'dash_user_access'},
   change_password:       {label:'Change Password',            icon:'key-round',        group:'Settings',             key:'dash_settings'},
+  bulk_import:           {label:'Bulk CSV Import',            icon:'upload-cloud',     group:'Settings',             key:'dash_settings', superOnly:true},
 };
 
 const STATUS_COLORS = {
@@ -281,11 +281,6 @@ function toast(msg, type='info'){
   window.__toastT = setTimeout(()=>wrap.classList.add('hidden'), 3500);
 }
 
-function toggleSidebar(){
-  const sb = document.getElementById('sidebar');
-  SIDEBAR_OPEN_MOBILE = !SIDEBAR_OPEN_MOBILE;
-  sb.classList.toggle('-translate-x-full', !SIDEBAR_OPEN_MOBILE);
-}
 
 /* ============================================================
    AUTH  (custom — no Supabase Auth)
@@ -364,60 +359,156 @@ async function initApp(prof){
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
 
-  document.getElementById('sidebarUser').innerHTML = `
-    <div class="font-medium text-white">${escapeHtml(prof.full_name)}</div>
-    <div class="text-slate-400">${escapeHtml(prof.email)} · ${escapeHtml(prof.department)} · ${escapeHtml(prof.role)}</div>`;
-  document.getElementById('topDept').textContent = prof.department + (prof.role==='Super Admin'?' · Super Admin':'');
-  document.getElementById('avatarBtn').textContent = (prof.full_name||prof.email||'?').charAt(0).toUpperCase();
-
-  buildSidebar();
+  buildSwitcher();
   lucide.createIcons();
-
-  // default route — first allowed page
-  const firstAllowed = Object.keys(PAGES).find(k => permissions[PAGES[k].key]);
-  route(firstAllowed || 'change_password');
+  route('home');
 }
 
 /* ============================================================
    SIDEBAR / ROUTER
    ============================================================ */
-function buildSidebar(){
-  const nav = document.getElementById('sidebarNav');
-  const groups = {};
-  for (const [pageKey, p] of Object.entries(PAGES)){
-    if (!permissions[p.key] && !(pageKey==='change_password' && permissions.dash_settings)) {
-      // super admin always allowed even if flag missing
-      if (currentUser.role !== 'Super Admin') continue;
-    }
-    (groups[p.group] = groups[p.group]||[]).push({pageKey, ...p, routeKey: pageKey});
-  }
-  let html = '';
-  for (const [group, items] of Object.entries(groups)){
-    html += `<div class="px-3 mt-3 mb-1 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">${group}</div>`;
-    for (const it of items){
-      html += `<a href="#${it.routeKey}" data-route="${it.routeKey}"
-        class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-200 text-sm">
-        <i data-lucide="${it.icon}" class="w-4 h-4"></i><span>${escapeHtml(it.label)}</span></a>`;
-    }
-  }
-  nav.innerHTML = html;
-  nav.querySelectorAll('a').forEach(a=>{
-    a.addEventListener('click', e=>{
-      e.preventDefault();
-      route(a.dataset.route);
-      if (window.innerWidth < 1024){ SIDEBAR_OPEN_MOBILE=false; document.getElementById('sidebar').classList.add('-translate-x-full'); }
-    });
+/* ---------- Page-level access ----------
+   Several pages share one legacy permission key (e.g. all Data Entry pages -> dash_data_entry).
+   Each of those pages also gets its own optional column pg_<page>. Rule:
+     pg_<page> true/false  -> explicit per-page setting
+     pg_<page> null/absent -> fall back to the legacy shared key (existing users keep their access) */
+const PG_SHARED = (()=>{ const c={}; Object.values(PAGES).forEach(p=>{ if(!p.superOnly&&!p.noPg) c[p.key]=(c[p.key]||0)+1; }); return new Set(Object.keys(PAGES).filter(k=>!PAGES[k].superOnly && !PAGES[k].noPg && c[PAGES[k].key]>1)); })();
+function pageAllowedFor(perms, name, role){
+  const p = PAGES[name]; if (!p) return false;
+  if (role==='Super Admin') return true;
+  if (p.superOnly) return false;
+  perms = perms||{};
+  if (PG_SHARED.has(name)){ const v = perms['pg_'+name]; if (v!==undefined && v!==null) return !!v; }
+  return !!perms[p.key] || (name==='change_password' && !!perms.dash_settings);
+}
+const pageAllowed = name => pageAllowedFor(permissions, name, currentUser && currentUser.role);
+const pgReady = () => !!permissions && PG_SHARED.size>0 && ('pg_'+[...PG_SHARED][0]) in permissions;
+/* ============================================================
+   LANDING PAGE (application portal) + top-bar page switcher
+   ============================================================ */
+const PAGE_CATS = {
+  'Overview':{c:'#2563eb',t:'#dbeafe'}, 'Maintenance':{c:'#d97706',t:'#fef3c7'}, 'Requirements':{c:'#0d9488',t:'#ccfbf1'},
+  'Approval':{c:'#7c3aed',t:'#ede9fe'}, 'Supply Chain':{c:'#4f46e5',t:'#e0e7ff'}, 'Data Entry':{c:'#16a34a',t:'#dcfce7'},
+  'Records':{c:'#0891b2',t:'#cffafe'}, 'History & Analysis':{c:'#db2777',t:'#fce7f3'}, 'Master Data':{c:'#78716c',t:'#e7e5e4'},
+  'Reports':{c:'#0284c7',t:'#e0f2fe'}, 'Settings':{c:'#475569',t:'#e2e8f0'}
+};
+const PAGE_META = {   // page -> [category, description]
+  dashboard:          ['Overview','Fleet overview with maintenance status, pending requirements and department activity.'],
+  vehicle_maintenance:['Maintenance','Log and manage vehicle maintenance jobs from request to completion.'],
+  pending_maintenance:['Maintenance','Track maintenance that is waiting on parts, approval or a recorded reason.'],
+  maintenance_history:['Maintenance','Browse completed and past maintenance records for every vehicle.'],
+  maint_calendar:     ['Maintenance','Plan and view scheduled maintenance on a calendar.'],
+  vehicle_status:     ['Maintenance','Select a vehicle to see its diesel history, service records, upcoming and overdue maintenance in one place.'],
+  maint_overdue:      ['Maintenance','See vehicles whose maintenance is overdue, grouped by how late they are.'],
+  item_requirement:   ['Requirements','Request spare parts and items for vehicles. Submissions flow to ROM and Supply Chain with a PDF receipt.'],
+  rom:                ['Approval','Review item requirements, confirm quantities and pass them on to Supply Chain.'],
+  supply_chain:       ['Supply Chain','Schedule deliveries, confirm quantities and follow item delivery status.'],
+  de_record:          ['Data Entry','Record a filter change against a vehicle.'],
+  oil_record:         ['Data Entry','Record an engine oil change against a vehicle.'],
+  other_record:       ['Data Entry','Record the replacement of other spare parts on a vehicle.'],
+  diesel_consumption: ['Data Entry','Daily diesel consumption by vehicle, with a heat map to spot unusual usage.'],
+  de_data:            ['Records','View and manage every recorded filter change entry.'],
+  oil_data:           ['Records','View and manage every recorded oil change entry.'],
+  other_data:         ['Records','View and manage every spare part replacement entry.'],
+  filter_dashboard:   ['History & Analysis','Analyse filter change frequency and upcoming changes across the fleet.'],
+  de_history:         ['History & Analysis','Full history of filter replacements with filters and export.'],
+  oil_history:        ['History & Analysis','Full history of oil changes with filters and export.'],
+  other_history:      ['History & Analysis','Full history of other spare part replacements.'],
+  item_master:        ['Master Data','Maintain the master list of items, codes, categories and units.'],
+  qr_codes:           ['Master Data','Register vehicles and generate QR codes for quick data entry.'],
+  maint_settings:     ['Master Data','Set the maintenance intervals used for schedules and overdue checks.'],
+  reports:            ['Reports','Generate and export operational reports.'],
+  user_access:        ['Settings','Manage users, roles and page-level access.'],
+  change_password:    ['Settings','Update your account password.'],
+  bulk_import:        ['Settings','Import vehicles, items and records in bulk from CSV files.']
+};
+const pageCat = n => (PAGE_META[n]&&PAGE_META[n][0]) || 'Settings';
+const pageCol = n => PAGE_CATS[pageCat(n)] || PAGE_CATS['Settings'];
+const setHeader = (title, sub) => { const t=document.getElementById('pageTitle'), s=document.getElementById('pageSub'); if(t) t.textContent=title; if(s) s.textContent=sub; };
+
+function renderHome(){
+  swClose(); route.current='home';
+  setHeader('X Ceramics Ltd (Automobile)','Concept of ROM · Digital maintenance portal');
+  document.querySelectorAll('.sw-item').forEach(b=>b.classList.remove('ring-2','ring-teal-500'));
+  const names = Object.keys(PAGES).filter(n=>pageAllowed(n));
+  const u = currentUser||{};
+  const page = document.getElementById('page');
+  const card = n => { const p=PAGES[n], k=pageCol(n), meta=PAGE_META[n]||[pageCat(n),''];
+    return `<a href="#${n}" data-name="${escapeHtml((p.label+' '+meta[1]+' '+meta[0]).toLowerCase())}" onclick="event.preventDefault();route('${n}')"
+      class="hm-card relative flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150" style="--c:${k.c};--t:${k.t}">
+      <span class="absolute left-0 top-5 bottom-14 w-[3px] rounded-r" style="background:var(--c)"></span>
+      <div class="flex gap-4 p-5 pb-4">
+        <span class="w-11 h-11 shrink-0 rounded-xl flex items-center justify-center border" style="background:var(--t);color:var(--c);border-color:color-mix(in srgb,var(--c) 18%,white)"><i data-lucide="${p.icon}" class="w-5 h-5"></i></span>
+        <div class="min-w-0"><div class="text-[17px] font-bold text-navy-900 leading-tight">${escapeHtml(p.label)}</div>
+          <p class="mt-1 text-sm text-slate-600 leading-snug">${escapeHtml(meta[1])}</p></div>
+      </div>
+      <div class="mt-auto flex items-center justify-between px-5 py-2.5 bg-slate-50 border-t border-slate-100 text-xs text-slate-500">
+        <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full border-2" style="border-color:var(--c)"></span>${escapeHtml(meta[0])}</span>
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </div></a>`; };
+  page.innerHTML = `<div class="max-w-[1140px] mx-auto">
+    <div class="flex items-center justify-between gap-3 pb-3 mb-5 border-b border-slate-200 flex-wrap">
+      <div class="text-sm text-slate-600">Welcome, <b class="text-navy-900">${escapeHtml(u.full_name||u.email||'')}</b>
+        <span class="text-slate-400">· ${escapeHtml(u.department||'')}${u.role?' · '+escapeHtml(u.role):''}</span></div>
+      <button onclick="logout()" class="flex items-center gap-2 text-sm text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg px-3 py-1.5"><i data-lucide="log-out" class="w-4 h-4"></i> Logout</button>
+    </div>
+    <div class="flex items-center justify-between gap-3 mb-5 flex-wrap">
+      <div class="relative w-full sm:w-[440px]">
+        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+        <input id="hmSearch" type="text" autocomplete="off" placeholder="Search applications" class="w-full pl-11 pr-12 py-3 text-sm rounded-xl border border-slate-300 bg-white outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"/>
+        <kbd class="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] px-2 py-0.5 border border-slate-300 rounded-md bg-slate-50 text-slate-500 pointer-events-none">/</kbd>
+      </div>
+      <div class="text-sm text-slate-600"><b id="hmCount" class="text-navy-900">${names.length}</b> applications</div>
+    </div>
+    ${names.length ? `<div id="hmGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">${names.map(card).join('')}</div>
+      <div id="hmNone" class="hidden text-center text-slate-500 py-16">No applications match your search.</div>`
+      : `<div class="text-center text-slate-500 py-16">No applications are assigned to your account yet. Please contact an administrator.</div>`}
+  </div>`;
+  const inp=document.getElementById('hmSearch');
+  if (inp) inp.addEventListener('input',()=>{
+    const q=inp.value.trim().toLowerCase(); let n=0;
+    document.querySelectorAll('#hmGrid .hm-card').forEach(c=>{ const ok=!q||q.split(/\s+/).every(t=>c.dataset.name.includes(t)); c.style.display=ok?'':'none'; if(ok) n++; });
+    document.getElementById('hmCount').textContent=n; document.getElementById('hmNone').classList.toggle('hidden',n>0);
   });
+  lucide.createIcons();
+}
+if (!window.__hmKeys){ window.__hmKeys=true;
+  document.addEventListener('keydown',e=>{
+    if (e.key==='Escape') swClose();
+    if (e.key==='/' && !/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')){ const i=document.getElementById('hmSearch'); if(i){ e.preventDefault(); i.focus(); } }
+  });
+  document.addEventListener('click',e=>{ const p=document.getElementById('swPanel'); if(p && !p.classList.contains('hidden') && !p.contains(e.target) && !e.target.closest('#swBtn')) swClose(); });
 }
 
+/* ---- top-bar switcher (the only navigation left in the header) ---- */
+function swClose(){ const p=document.getElementById('swPanel'); if(p) p.classList.add('hidden'); }
+function toggleSwitcher(ev){ if(ev) ev.stopPropagation(); const p=document.getElementById('swPanel'); if(!p) return;
+  p.classList.toggle('hidden'); if(!p.classList.contains('hidden')){ const i=document.getElementById('swSearch'); if(i){ i.value=''; swFilter(''); i.focus(); } } }
+function swGo(n){ swClose(); route(n); }
+function swFilter(q){ q=q.trim().toLowerCase(); document.querySelectorAll('#swGrid .sw-item').forEach(b=>{ b.style.display=(!q||b.dataset.n.includes(q))?'':'none'; }); }
+function buildSwitcher(){
+  const host=document.getElementById('swList'); if(!host) return;
+  const names = Object.keys(PAGES).filter(n=>pageAllowed(n));
+  host.innerHTML = `<div id="swGrid" class="grid grid-cols-4 gap-1">${names.map(n=>{ const p=PAGES[n], k=pageCol(n);
+    return `<button type="button" class="sw-item flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-slate-100 text-center" data-route="${n}" data-n="${escapeHtml(p.label.toLowerCase())}" title="${escapeHtml(p.label)}" onclick="swGo('${n}')">
+      <span class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:${k.t};color:${k.c}"><i data-lucide="${p.icon}" class="w-5 h-5"></i></span>
+      <span class="text-[11px] leading-tight text-slate-700 line-clamp-2">${escapeHtml(p.label)}</span></button>`; }).join('')}</div>`;
+  const u=currentUser||{}, ue=document.getElementById('swUser');
+  if (ue) ue.innerHTML = `<div class="font-semibold text-navy-900 truncate">${escapeHtml(u.full_name||'')}</div><div class="text-slate-500 truncate">${escapeHtml(u.email||'')} · ${escapeHtml(u.department||'')} · ${escapeHtml(u.role||'')}</div>`;
+}
+function toggleSidebar(){ toggleSwitcher(); }
+
 function route(name){
+  if (name==='home') return renderHome();
   if (!PAGES[name]) name='dashboard';
+  swClose(); route.current=name;
   const p = PAGES[name];
-  if (!permissions[p.key] && currentUser.role!=='Super Admin' && !(name==='change_password' && permissions.dash_settings)){
+  if (p.superOnly && currentUser.role !== 'Super Admin'){ toast('Only a Super Admin can open this page.','error'); return; }
+  if (!pageAllowed(name)){
     toast('No access to this page.','error'); return;
   }
-  document.getElementById('pageTitle').textContent = p.label;
-  document.querySelectorAll('.sidebar-link').forEach(a=>a.classList.toggle('active', a.dataset.route===name));
+  setHeader(p.label, 'X Ceramics Ltd (Automobile) · Concept of ROM');
+  document.querySelectorAll('.sw-item').forEach(b=>{ const on=b.dataset.route===name; b.classList.toggle('ring-2',on); b.classList.toggle('ring-teal-500',on); });
   const page = document.getElementById('page');
   page.innerHTML = `<div class="text-slate-400 text-sm">Loading…</div>`;
   const renderer = ROUTES[name] || ROUTES.dashboard;
@@ -435,8 +526,13 @@ async function loadVehicles(){
   if (error) throw error; return (data||[]).map(v=>({...v, registration_number:v.code}));
 }
 async function loadItems(){
-  const { data, error } = await db.from('items').select('*').order('created_at',{ascending:false});
-  if (error) throw error; return data||[];
+  /* Supabase returns at most 1000 rows per request, so page through the whole table */
+  let all=[];
+  for (let from=0;;from+=1000){
+    const { data, error } = await db.from('items').select('*').order('created_at',{ascending:false}).order('id',{ascending:true}).range(from,from+999);
+    if (error) throw error; all=all.concat(data||[]); if (!data || data.length<1000) break;
+  }
+  return all;
 }
 function vehicleOptions(vehicles, selId=''){
   return `<option value="">Select vehicle…</option>` + vehicles.map(v=>
@@ -523,7 +619,12 @@ function promptDialog(message, opts={}){
   });
 }
 
-function closeModal(){ if (typeof deStopScan==='function' && deScanner) deStopScan(); document.getElementById('modalHost').innerHTML=''; }
+function closeModal(){
+  if (typeof deStopScan==='function' && deScanner) deStopScan();
+  if (typeof oeStopScan==='function' && oeScanner) oeStopScan();
+  if (typeof otStopScan==='function' && otScanner) otStopScan();
+  document.getElementById('modalHost').innerHTML='';
+}
 
 function tableCard(title, cols, rowsHtml, opts={}){
   return `
@@ -767,7 +868,7 @@ async function refreshMaintenance(){
     <td class="px-4 py-2">${badge(r.status)}</td>
     <td class="px-4 py-2 whitespace-nowrap">
       <button onclick="viewMaintenance('${r.id}')" class="text-teal-700 hover:underline text-xs mr-2">View</button>
-      <button onclick="openMaintenanceForm('${r.id}')" class="text-navy-800 hover:underline text-xs mr-2">Edit</button>
+      <button onclick="openMaintenanceForm('${r.id}')" class="p-1.5 rounded-lg text-slate-500 align-middle hover:text-teal-700 hover:bg-teal-50" title="Edit" aria-label="Edit"><i data-lucide="pencil" class="w-4 h-4 pointer-events-none"></i></button>
       <button onclick="updateMaintStatus('${r.id}','${r.status}')" class="text-amber-700 hover:underline text-xs">Status</button>
     </td>
   </tr>`).join('') || emptyRow(7,'No maintenance records yet. Click "Add Maintenance".');
@@ -1039,37 +1140,46 @@ async function savePending(id){
    ITEM REQUIREMENT SUBMISSION
    ============================================================ */
 ROUTES.item_requirement = async (host)=>{
+  REQ_HOST = host;
   host.innerHTML = `
-   <div class="space-y-4">
-     <div class="flex items-center justify-between flex-wrap gap-2">
-       <p class="text-sm text-slate-500">Submit spare parts / item requirements. After submission, requirements auto-flow to ROM → Supply Chain.</p>
-       <button id="btnAddReq" class="bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i> New Item Requirement</button>
+   <div class="space-y-5">
+     <p class="text-sm text-slate-500">Submit spare parts / item requirements. After submission, requirements auto-flow to ROM → Supply Chain, and a PDF receipt is generated.</p>
+     <div class="grid grid-cols-1 xl:grid-cols-[minmax(360px,440px)_minmax(0,1fr)] gap-5 items-start">
+       <div id="reqFormHost" class="xl:sticky xl:top-4"><div class="bg-white border border-slate-200 rounded-xl p-5 text-slate-400 text-sm">Loading form…</div></div>
+       <div id="reqWrap" class="min-w-0 overflow-x-auto"><div class="text-slate-400 text-sm">Loading…</div></div>
      </div>
-     <div id="reqWrap"><div class="text-slate-400 text-sm">Loading…</div></div>
    </div>`;
   lucide.createIcons();
-  document.getElementById('btnAddReq').addEventListener('click', ()=>openReqForm());
-  await refreshRequirements();
+  await Promise.all([ openReqForm().catch(e=>{ const h=document.getElementById('reqFormHost'); if(h) h.innerHTML=`<div class="text-red-600 text-sm">${escapeHtml(e.message)}</div>`; }), refreshRequirements() ]);
 };
 async function refreshRequirements(){
   const wrap = document.getElementById('reqWrap'); if (!wrap) return;
   const { data, error } = await db.from('item_requirements').select('*').order('submission_date',{ascending:false});
   if (error){ wrap.innerHTML = `<div class="text-red-600 text-sm">${escapeHtml(error.message)}</div>`; return; }
+  const users = await reqLoadUsers();
   const rows = (data||[]).map(r=>`<tr>
     <td class="px-4 py-2 font-mono text-xs">${escapeHtml(r.requirement_id)}</td>
     <td class="px-4 py-2">${escapeHtml(r.vehicle_name)}<div class="text-xs text-slate-400">${escapeHtml(r.registration_number)}</div></td>
     <td class="px-4 py-2">${escapeHtml(r.item_name)}</td>
-    <td class="px-4 py-2">${r.required_quantity}</td>
+    <td class="px-4 py-2">${r.required_quantity}${r.uom?' '+escapeHtml(r.uom):''}</td>
     <td class="px-4 py-2">${fmtDate(r.need_by_date)}</td>
     <td class="px-4 py-2">${escapeHtml(r.pr_number||'—')}</td>
     <td class="px-4 py-2">${fmtDateTime(r.submission_date)}</td>
+    <td class="px-4 py-2">${reqSubmitterHtml(r, users)}</td>
     <td class="px-4 py-2">${badge(r.status)}</td>
     <td class="px-4 py-2 whitespace-nowrap">
-      <button onclick="viewReq('${r.id}')" class="text-teal-700 hover:underline text-xs">View</button>
+      <div class="flex items-center gap-1">
+      <button onclick="viewReq('${r.id}')" class="p-1.5 rounded-lg text-slate-500 align-middle hover:text-teal-700 hover:bg-teal-50" title="View" aria-label="View"><i data-lucide="eye" class="w-4 h-4 pointer-events-none"></i></button>
+      <button onclick="reqReceiptFor('${r.id}')" class="p-1.5 rounded-lg text-slate-500 align-middle hover:text-navy-800 hover:bg-slate-100" title="Download PDF receipt" aria-label="Download PDF receipt"><i data-lucide="file-down" class="w-4 h-4 pointer-events-none"></i></button>
+      ${(()=>{ const ok = r.status==='Submitted to ROM', tip = ok?'':'Locked: already processed by ROM / Supply Chain';
+        const cls='p-1.5 rounded-lg text-slate-500 align-middle disabled:opacity-40 disabled:cursor-not-allowed';
+        return `<button onclick="editReq('${r.id}')" class="${cls} hover:text-teal-700 hover:bg-teal-50" title="${ok?'Edit':tip}" aria-label="Edit" ${ok?'':'disabled'}><i data-lucide="pencil" class="w-4 h-4 pointer-events-none"></i></button>
+      <button onclick="deleteReq('${r.id}')" class="${cls} hover:text-red-600 hover:bg-red-50" title="${ok?'Delete':tip}" aria-label="Delete" ${ok?'':'disabled'}><i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i></button>`; })()}
+      </div>
     </td>
-  </tr>`).join('') || emptyRow(9,'No item requirements submitted yet.');
+  </tr>`).join('') || emptyRow(10,'No item requirements submitted yet.');
   wrap.innerHTML = tableCard('Item Requirements',
-    ['Req ID','Vehicle','Item','Qty','Need By','PR No.','Submitted','Status','Actions'], rows,
+    ['Req ID','Vehicle','Item','Qty','Need By','PR No.','Submitted','Submitted By','Status','Actions'], rows,
     {toolbar:`<input id="reqSearch" placeholder="Search…" onkeyup="filterReqTable(this.value)" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm w-48"/>`});
   lucide.createIcons();
 }
@@ -1079,100 +1189,590 @@ function filterReqTable(q){
     tr.style.display = tr.innerText.toLowerCase().includes(q)?'':'none';
   });
 }
+/* ---- who submitted / edit / delete ---- */
+async function reqLoadUsers(){
+  const m = new Map();
+  try{ const { data } = await db.from('profiles').select('id, full_name, email, department'); (data||[]).forEach(u=>m.set(String(u.id),u)); }catch(e){}
+  if (currentUser) m.set(String(currentUser.id), m.get(String(currentUser.id)) || currentUser);
+  return m;
+}
+function reqSubmitterHtml(r, users){
+  const u = r.submitted_by ? users.get(String(r.submitted_by)) : null;
+  if (!u) return '<span class="text-slate-400">—</span>';
+  return `${escapeHtml(u.full_name||u.email||'')}${u.department?`<div class="text-xs text-slate-400">${escapeHtml(u.department)}</div>`:''}`;
+}
+let ER = null;
+async function editReq(id){
+  const { data: r } = await db.from('item_requirements').select('*').eq('id', id).maybeSingle();
+  if (!r){ toast('Requirement not found.','error'); return; }
+  if (r.status!=='Submitted to ROM'){ toast('This requirement has already been processed and can no longer be edited.','error'); refreshRequirements(); return; }
+  let items=[]; try{ items = await loadItems(); }catch(e){ toast(e.message,'error'); return; }
+  const label = i => `${i.item_name}${i.item_code?' ('+i.item_code+')':''}`;
+  const origLabel = `${r.item_name||''}${r.item_code?' ('+r.item_code+')':''}`;
+  ER = { r, origLabel, map:new Map(items.map(i=>[label(i), i])) };
+  const uoms = REQ_UOMS.includes(r.uom) || !r.uom ? REQ_UOMS : [...REQ_UOMS, r.uom];
+  const inp='w-full border border-slate-300 rounded-lg px-3 py-2';
+  openModal(`Edit ${escapeHtml(r.requirement_id)}`, `
+    <div class="space-y-3 text-sm">
+      <div class="bg-slate-50 rounded-lg p-3"><div class="text-xs text-slate-500">Vehicle (to change the vehicle, delete this record and create a new one)</div>
+        <div class="font-medium mt-0.5">${escapeHtml(r.vehicle_name||'')} <span class="font-mono text-xs text-slate-500">${escapeHtml(r.registration_number||'')}</span></div></div>
+      <div><label class="block mb-1 font-medium">Item *</label>
+        <input id="er_item" list="er_items" value="${escapeHtml(origLabel)}" class="${inp}" autocomplete="off" placeholder="Search item name or code…"/>
+        <datalist id="er_items">${items.map(i=>`<option value="${escapeHtml(label(i))}"></option>`).join('')}</datalist></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block mb-1 font-medium">Quantity *</label><input id="er_qty" type="number" min="0" step="any" value="${escapeHtml(r.required_quantity)}" class="${inp}"/></div>
+        <div><label class="block mb-1 font-medium">UoM *</label><select id="er_uom" class="${inp}">${uoms.map(u=>`<option ${u===(r.uom||'PCS')?'selected':''}>${escapeHtml(u)}</option>`).join('')}</select></div>
+        <div><label class="block mb-1 font-medium">Need By Date *</label><input id="er_need" type="date" value="${escapeHtml(String(r.need_by_date||'').slice(0,10))}" class="${inp}"/></div>
+        <div><label class="block mb-1 font-medium">PR Number</label><input id="er_pr" value="${escapeHtml(r.pr_number||'')}" class="${inp}"/></div>
+      </div>
+      <div><label class="block mb-1 font-medium">Description</label><textarea id="er_desc" rows="2" class="${inp}">${escapeHtml(r.description||'')}</textarea></div>
+      <div><label class="block mb-1 font-medium">Remarks</label><textarea id="er_rem" rows="2" class="${inp}">${escapeHtml(r.remarks||'')}</textarea></div>
+    </div>`,
+    `<button onclick="closeModal()" class="px-3 py-1.5 text-sm border border-slate-300 rounded-lg">Cancel</button>
+     <button id="er_save" onclick="saveEditReq()" class="px-4 py-1.5 text-sm bg-teal-600 hover:bg-teal-700 text-white rounded-lg">Save Changes</button>`);
+}
+async function saveEditReq(){
+  if (!ER) return; const r = ER.r;
+  const val = document.getElementById('er_item').value.trim();
+  let itemName=r.item_name, itemCode=r.item_code||null, itemId=r.item_id||null;
+  if (val!==ER.origLabel){
+    const it = ER.map.get(val);
+    if (!it){ toast('Pick an item from the suggestions list.','error'); return; }
+    itemName=it.item_name; itemCode=it.item_code||null; itemId=reqIsUuid(it.id)?it.id:null;
+  }
+  const qty=parseFloat(document.getElementById('er_qty').value);
+  if (!(qty>0)){ toast('Enter a valid quantity.','error'); return; }
+  const need=document.getElementById('er_need').value; if(!need){ toast('Enter need by date.','error'); return; }
+  const uom=document.getElementById('er_uom').value;
+  const upd = { item_id:itemId, item_name:itemName, item_code:itemCode, required_quantity:qty, uom, need_by_date:need,
+    pr_number:document.getElementById('er_pr').value.trim()||null,
+    description:document.getElementById('er_desc').value.trim(), remarks:document.getElementById('er_rem').value.trim() };
+  const btn=document.getElementById('er_save'); btn.disabled=true;
+  const { data: cur } = await db.from('item_requirements').select('status').eq('id', r.id).maybeSingle();   // re-check right before saving
+  if (!cur || cur.status!=='Submitted to ROM'){ btn.disabled=false; toast('ROM has already started processing this requirement; it can no longer be edited.','error'); ER=null; closeModal(); refreshRequirements(); return; }
+  const strip = o => { const c={...o}; delete c.uom; delete c.item_code; c.description=((o.description||'')+' [UoM: '+o.uom+']').trim(); return c; };
+  let res = await db.from('item_requirements').update(REQ_EXTRA_COLS===false?strip(upd):upd).eq('id', r.id).select('id');
+  if (res.error && REQ_EXTRA_COLS!==false && reqIsMissingCol(res.error)){ REQ_EXTRA_COLS=false; res = await db.from('item_requirements').update(strip(upd)).eq('id', r.id).select('id'); }
+  if (res.error){ btn.disabled=false; toast(res.error.message,'error'); return; }
+  if (!res.data || !res.data.length){ btn.disabled=false; toast('Nothing was updated (no permission or record missing).','error'); return; }
+  try{ await logActivity('UPDATE_ITEM_REQUIREMENT','item_requirements', r.id, `${r.requirement_id} - ${itemName} x${qty} ${uom}`); }catch(e){}
+  toast('Requirement updated','success'); ER=null; closeModal(); refreshRequirements();
+}
+async function deleteReq(id){
+  const { data: r } = await db.from('item_requirements').select('*').eq('id', id).maybeSingle();
+  if (!r){ toast('Requirement not found.','error'); refreshRequirements(); return; }
+  if (r.status!=='Submitted to ROM'){ toast('This requirement has already been processed and can no longer be deleted.','error'); refreshRequirements(); return; }
+  if (!await confirmDialog(`${r.requirement_id} · ${r.item_name} × ${r.required_quantity} for ${r.vehicle_name} will be permanently deleted.`, {title:'Delete requirement?', confirmText:'Delete', danger:true})) return;
+  const { data:del, error } = await db.from('item_requirements').delete().eq('id', id).select('id');
+  if (error){ toast(error.message,'error'); return; }
+  if (!del || !del.length){ toast('Nothing was deleted (no permission or already removed).','error'); refreshRequirements(); return; }
+  if (r.maintenance_id){   // un-link a maintenance record that was waiting on this requirement
+    try{ await db.from('maintenance_records').update({status:'Maintenance Required', item_requirement_id:null}).eq('id', r.maintenance_id).eq('item_requirement_id', id).eq('status','Item Requirement Pending'); }catch(e){}
+  }
+  try{ await logActivity('DELETE_ITEM_REQUIREMENT','item_requirements', id, `${r.requirement_id} - ${r.item_name} x${r.required_quantity}`); }catch(e){}
+  toast('Requirement deleted','success'); refreshRequirements();
+}
+/* ---------- A4 PDF receipt (material requisition acknowledgement) ---------- */
+function reqQrDataUrl(text){
+  try{
+    const d=document.createElement('div'); d.style.cssText='position:fixed;left:-9999px;top:0';
+    document.body.appendChild(d);
+    new QRCode(d,{text:String(text),width:160,height:160,correctLevel:QRCode.CorrectLevel.M});
+    const c=d.querySelector('canvas'); const url=c?c.toDataURL('image/png'):null; d.remove(); return url;
+  }catch(e){ return null; }
+}
+function reqMakeReceipt(recs, ctx){
+  const J = window.jspdf && window.jspdf.jsPDF;
+  if (!J || !recs || !recs.length) return false;
+  ctx = ctx || {};
+  const doc = new J({unit:'mm', format:'a4', orientation:'portrait'});
+  const W=210, H=297, M=14, CW=W-2*M, FOOT=22;
+  const NAVY=[15,42,74], TEAL=[13,148,136], GREY=[100,116,139], INK=[30,41,59], LIGHT=[241,245,249], LINE=[203,213,225];
+  const T = s => String(s==null||s===''?'-':s).replace(/[\u2013\u2014]/g,'-').replace(/\u2192/g,'to');
+  const dt = (d,time) => { if(!d) return '-'; try{ const o={day:'2-digit',month:'short',year:'numeric'}; if(time){o.hour='2-digit';o.minute='2-digit';} return new Date(d).toLocaleString('en-GB',o);}catch(e){return String(d);} };
+  const first=recs[0], last=recs[recs.length-1];
+  const rcpNo = 'RCP-'+String(first.requirement_id||'').replace(/^REQ-/,'');
+  const idRange = (recs.length>1 && first.requirement_id!==last.requirement_id) ? `${first.requirement_id} to ${last.requirement_id}` : T(first.requirement_id);
+  const nVeh = new Set(recs.map(r=>(r.registration_number||'')+'|'+(r.vehicle_name||''))).size;
+  const nItm = new Set(recs.map(r=>(r.item_code||'')+'|'+(r.item_name||''))).size;
+  const sub = ctx.submitter || {};
+  const submittedAt = first.submission_date || new Date().toISOString();
+  let y=0;
+
+  /* --- first-page header band --- */
+  doc.setFillColor(...NAVY); doc.rect(0,0,W,30,'F');
+  doc.setFillColor(...TEAL); doc.roundedRect(M,8,14,14,2,2,'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.text('VM',M+7,16.6,{align:'center'});
+  doc.setFontSize(13); doc.text('X Ceramics Ltd (Automobile)',M+19,13.5);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.text('Concept of ROM',M+19,18.5);
+  doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.text('ITEM REQUIREMENT RECEIPT',W-M,14,{align:'right'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.text('Acknowledgement of requisition submission',W-M,19.5,{align:'right'});
+  doc.setFillColor(...TEAL); doc.rect(0,30,W,1.2,'F');
+
+  /* --- meta panel --- */
+  y=37; const mh=42;
+  doc.setDrawColor(...LINE); doc.setLineWidth(.3); doc.setFillColor(255,255,255); doc.roundedRect(M,y,CW,mh,1.5,1.5,'FD');
+  const field=(label,val,x,yy,w)=>{ doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...GREY); doc.text(label.toUpperCase(),x,yy);
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...INK); const ls=doc.splitTextToSize(T(val),w); doc.text(ls.slice(0,2),x,yy+4.2); };
+  field('Receipt No.', rcpNo, M+4, y+6, 52);
+  field('Date & Time', dt(submittedAt,true), M+4, y+17, 52);
+  field('Submitted By', sub.full_name||sub.email||'-', M+4, y+28, 52);
+  field('Department', sub.department||'-', M+60, y+6, 46);
+  field('Need-By Date', dt(first.need_by_date), M+60, y+17, 46);
+  field('PR Number', first.pr_number||'-', M+60, y+28, 46);
+  field('Status', first.status||'Submitted to ROM', M+108, y+6, 38);
+  field('Requirement IDs', idRange, M+108, y+17, 38);
+  field('Linked Maintenance', ctx.maint||'None', M+108, y+28, 38);
+  const qr = reqQrDataUrl(`${rcpNo}|${idRange}`);
+  if (qr){ doc.addImage(qr,'PNG',W-M-27,y+5,23,23); doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(...GREY); doc.text('Scan to verify',W-M-15.5,y+32,{align:'center'}); }
+  y += mh+5;
+
+  /* --- summary strip --- */
+  const sw=(CW-8)/3;
+  [['Vehicles',nVeh],['Distinct Items',nItm],['Requirement Records',recs.length]].forEach((s,i)=>{
+    const x=M+i*(sw+4); doc.setFillColor(...LIGHT); doc.roundedRect(x,y,sw,12,1.5,1.5,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...NAVY); doc.text(String(s[1]),x+4,y+8.2);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...GREY); doc.text(s[0],x+sw-4,y+7.6,{align:'right'});
+  });
+  y += 17;
+
+  /* --- table --- */
+  const cols=[['S/N',10,'c'],['Req. ID',30,'l'],['Vehicle',52,'l'],['Item',62,'l'],['Qty',14,'r'],['UoM',14,'c']];
+  const colX=[]; { let x=M; cols.forEach(c=>{ colX.push(x); x+=c[1]; }); }
+  const runHead=()=>{ doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...GREY);
+    doc.text(`Item Requirement Receipt  |  ${rcpNo}  (continued)`,M,12); doc.setDrawColor(...LINE); doc.line(M,14,W-M,14); };
+  const tHead=()=>{ doc.setFillColor(...NAVY); doc.rect(M,y,CW,7.5,'F'); doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+    cols.forEach((c,i)=>{ const tx = c[2]==='c'?colX[i]+c[1]/2 : c[2]==='r'?colX[i]+c[1]-2 : colX[i]+2; doc.text(c[0],tx,y+5,{align:c[2]==='c'?'center':c[2]==='r'?'right':'left'}); });
+    y+=7.5; };
+  const need = h => { if (y+h > H-FOOT){ doc.addPage(); runHead(); y=20; tHead(); } };
+  tHead();
+  recs.forEach((r,n)=>{
+    const vL = doc.splitTextToSize(T(r.vehicle_name),cols[2][1]-4);
+    const iL = doc.splitTextToSize(T(r.item_name),cols[3][1]-4);
+    const lines = Math.max(vL.length+1, iL.length+(r.item_code?1:0), 1);
+    const rh = Math.max(8, lines*4.1+3.2);
+    need(rh);
+    if (n%2===0){ doc.setFillColor(248,250,252); doc.rect(M,y,CW,rh,'F'); }
+    doc.setDrawColor(...LINE); doc.setLineWidth(.2); doc.line(M,y+rh,M+CW,y+rh);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...INK);
+    doc.text(String(n+1),colX[0]+cols[0][1]/2,y+5,{align:'center'});
+    doc.setFont('courier','normal'); doc.setFontSize(8); doc.text(T(r.requirement_id),colX[1]+2,y+5);
+    doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.text(vL,colX[2]+2,y+5);
+    doc.setFont('courier','normal'); doc.setFontSize(7.5); doc.setTextColor(...GREY); doc.text(T(r.registration_number||''),colX[2]+2,y+5+vL.length*4.1);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...INK); doc.text(iL,colX[3]+2,y+5);
+    if (r.item_code){ doc.setFont('courier','normal'); doc.setFontSize(7.5); doc.setTextColor(...GREY); doc.text(T(r.item_code),colX[3]+2,y+5+iL.length*4.1); }
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...INK); doc.text(String(r.required_quantity),colX[4]+cols[4][1]-2,y+5,{align:'right'});
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.text(T(r.uom||'PCS'),colX[5]+cols[5][1]/2,y+5,{align:'center'});
+    y+=rh;
+  });
+  doc.setDrawColor(...NAVY); doc.setLineWidth(.5); doc.line(M,y,M+CW,y);
+  y+=6;
+
+  /* --- description / remarks --- */
+  const notes=[['Requirement Description',first.description],['Remarks',first.remarks]].filter(n=>n[1]&&String(n[1]).trim());
+  notes.forEach(([lab,txt])=>{
+    const ls=doc.splitTextToSize(T(String(txt).replace(/\s*\[UoM:[^\]]*\]\s*$/,'')),CW-8); const h=Math.min(ls.length,12)*4.2+11;
+    need(h+2);
+    doc.setDrawColor(...LINE); doc.setLineWidth(.3); doc.roundedRect(M,y,CW,h,1.5,1.5,'S');
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...GREY); doc.text(lab.toUpperCase(),M+4,y+5.5);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...INK); doc.text(ls.slice(0,12),M+4,y+11);
+    y+=h+4;
+  });
+
+  /* --- workflow + signatures --- */
+  need(52);
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...NAVY); doc.text('APPROVAL WORKFLOW',M,y+3);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...GREY);
+  doc.text('1. Requester submits   >   2. ROM reviews and confirms quantity   >   3. Supply Chain schedules delivery',M,y+8);
+  y+=15;
+  const gw=(CW-8)/3;
+  [['Requested By',sub.full_name||sub.email||''],['Reviewed By (ROM)',''],['Received By (Supply Chain)','']].forEach((s,i)=>{
+    const x=M+i*(gw+4);
+    doc.setDrawColor(...INK); doc.setLineWidth(.3); doc.line(x,y+16,x+gw,y+16);
+    doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...INK); doc.text(s[0],x,y+21);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...GREY);
+    doc.text(s[1]?T(s[1]):'Name / Signature',x,y+25.5); doc.text('Date: ____ / ____ / ________',x,y+30);
+  });
+
+  /* --- footer + page numbers on every page --- */
+  const pages=doc.getNumberOfPages();
+  for (let p=1;p<=pages;p++){
+    doc.setPage(p);
+    doc.setDrawColor(...LINE); doc.setLineWidth(.3); doc.line(M,H-17,W-M,H-17);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...GREY);
+    doc.text('Computer-generated receipt confirming that the requirement was submitted. Submission does not guarantee approval or delivery;',M,H-13);
+    doc.text('quantities and dates remain subject to ROM review and Supply Chain scheduling.',M,H-9.6);
+    doc.text(`Generated ${dt(new Date().toISOString(),true)}`,M,H-5.5);
+    doc.text(`${rcpNo}   |   Page ${p} of ${pages}`,W-M,H-5.5,{align:'right'});
+  }
+  doc.save(`Receipt_${rcpNo}.pdf`);
+  return true;
+}
+async function reqReceiptFor(id){
+  const { data: r } = await db.from('item_requirements').select('*').eq('id', id).maybeSingle();
+  if (!r){ toast('Requirement not found.','error'); return; }
+  const users = await reqLoadUsers(); const u = r.submitted_by ? users.get(String(r.submitted_by)) : null;
+  let maint=null;
+  if (r.maintenance_id){ try{ const { data:m } = await db.from('maintenance_records').select('vehicle_name, maintenance_item').eq('id', r.maintenance_id).maybeSingle(); if(m) maint=`${m.vehicle_name} - ${m.maintenance_item}`; }catch(e){} }
+  try{ if (!reqMakeReceipt([r], {submitter:u||{}, maint})) toast('PDF library not loaded. Check your internet connection.','error'); }
+  catch(e){ console.error(e); toast('Could not create the receipt: '+e.message,'error'); }
+}
+function reqReset(){ REQ=null; return openReqForm(); }
+function reqToggleForm(){
+  const b=document.getElementById('reqFormBody'), h=document.getElementById('reqFormHint'), c=document.getElementById('reqFormChev'); if(!b) return;
+  const hide=!b.classList.contains('hidden'); b.classList.toggle('hidden',hide);
+  if(h) h.textContent = hide?'Show form':'Hide form';
+  if(c){ c.setAttribute('data-lucide', hide?'chevron-down':'chevron-up'); lucide.createIcons(); }
+}
+async function reqAfterSave(){
+  await Promise.all([ refreshRequirements(), reqReset() ]);
+  
+}
+/* ---- Item Requirement form: searchable items, multiple items, multiple vehicles ---- */
+const REQ_UOMS = ['PCS','SET','LTR','KG','M','BOX','ROLL','OTHER'];
+const REQ_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+let REQ = null;             // state of the currently open form
+let REQ_HOST = null;        // the page element that holds the requirement list / inline form
+let REQ_EXTRA_COLS = null;  // null = unknown yet; true/false once the DB has told us if item_requirements has uom / item_code
+const reqAlnum = s => String(s==null?'':s).toLowerCase().replace(/[^a-z0-9]/g,'');
+const reqIsUuid = v => REQ_UUID_RE.test(String(v==null?'':v));
+const reqRow = uid => REQ.rows.find(r=>r.uid===uid);
+const reqNewRow = () => ({uid:'ri'+(++REQ.seq), item:null, qty:'1', uom:'PCS', q:''});
+const reqVehCode = v => v.code || v.registration_number || '';
+const reqItemLabel = i => `${i.item_name}${i.item_code?' ('+i.item_code+')':''}`;
+function reqMatch(hay, q){
+  const toks = String(q||'').toLowerCase().split(/\s+/).filter(Boolean);
+  if (!toks.length) return true;
+  const h = String(hay||'').toLowerCase(), hn = reqAlnum(hay);
+  return toks.every(t=>{ const tn = reqAlnum(t); return h.includes(t) || (tn && hn.includes(tn)); });
+}
+
 async function openReqForm(){
   const [vehicles, items] = await Promise.all([loadVehicles(), loadItems()]);
   // also list maintenance records that are "Item Requirement Pending" to optionally link
   const { data: maint } = await db.from('maintenance_records').select('*').in('status',['Maintenance Required','Item Requirement Pending','Waiting for Item Delivery']);
-  openModal('New Item Requirement', `
-   <form id="reqForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-     <div class="md:col-span-2">
-       <label class="block mb-1 font-medium">Vehicle *</label>
-       <select id="r_vehicle" required class="w-full border border-slate-300 rounded-lg px-3 py-2">${vehicleOptions(vehicles)}</select>
+  REQ = { vehicles, vById:new Map(vehicles.map(v=>[String(v.id),v])), vSel:new Map(), vq:'',
+          items, iById:new Map(items.map(i=>[String(i.id),i])),
+          idx: items.map(i=>{ const t=`${i.item_name||''} ${i.item_code||''} ${i.item_category||''}`; return {i, n:String(i.item_name||'').toLowerCase(), h:t.toLowerCase(), hn:reqAlnum(t)}; }),
+          maint: maint||[], rows:[], seq:0 };
+  REQ.rows.push(reqNewRow());
+  const inp = 'w-full border border-slate-300 rounded-lg px-3 py-2';
+  const host = document.getElementById('reqFormHost'); if (!host) return;
+  host.innerHTML = `<div class="bg-white border border-slate-200 rounded-xl shadow-sm">
+    <div class="px-5 py-3 font-semibold text-navy-900">New Item Requirement</div>
+    <div id="reqFormBody" class="px-5 pb-5 border-t border-slate-100 pt-4">
+<form id="reqForm" onsubmit="return false" class="grid grid-cols-1 gap-4 text-sm">
+     <div >
+       <label class="block mb-1 font-medium">Vehicle(s) * <span id="r_vcount" class="ml-1 text-xs font-normal text-slate-500"></span></label>
+       <div class="border border-slate-300 rounded-lg">
+         <div class="p-2 flex flex-col sm:flex-row gap-2 border-b border-slate-200">
+           <input id="r_vsearch" type="text" autocomplete="off" placeholder="Search vehicle name or code…" oninput="reqVehSearch(this.value)" class="flex-1 min-w-0 ${inp}"/>
+           <div class="flex gap-2">
+             <button type="button" onclick="reqVehAll()" class="flex-1 sm:flex-none px-3 py-2 text-xs font-medium border border-slate-300 rounded-lg hover:bg-slate-50 whitespace-nowrap">Select All</button>
+             <button type="button" onclick="reqVehClear()" class="flex-1 sm:flex-none px-3 py-2 text-xs font-medium border border-slate-300 rounded-lg hover:bg-slate-50 whitespace-nowrap">Clear Selection</button>
+           </div>
+         </div>
+         <div id="r_vlist" class="max-h-64 overflow-y-auto scroll-thin p-2 grid grid-cols-1 gap-1.5"></div>
+       </div>
+       <div id="r_vsel" class="mt-2"></div>
      </div>
-     <div class="md:col-span-2">
-       <label class="block mb-1 font-medium">Item *</label>
-       <select id="r_item" required class="w-full border border-slate-300 rounded-lg px-3 py-2">${itemOptions(items)}</select>
+     <div >
+       <label class="block mb-1 font-medium">Items *</label>
+       <div id="r_items" class="space-y-3"></div>
+       <button type="button" onclick="reqAddRow()" class="mt-3 w-full sm:w-auto px-3 py-2 text-sm font-medium border border-teal-600 text-teal-700 hover:bg-teal-50 rounded-lg flex items-center justify-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i> Add Another Item</button>
+       <div id="r_summary" class="mt-2 text-xs text-slate-500"></div>
      </div>
-     <div>
-       <label class="block mb-1 font-medium">Quantity *</label>
-       <input id="r_qty" type="number" min="1" step="0.01" required class="w-full border border-slate-300 rounded-lg px-3 py-2"/>
-     </div>
+     <div class="grid grid-cols-2 gap-3">
      <div>
        <label class="block mb-1 font-medium">Need By Date *</label>
-       <input id="r_need" type="date" required class="w-full border border-slate-300 rounded-lg px-3 py-2"/>
+       <input id="r_need" type="date" required class="${inp}"/>
      </div>
      <div>
        <label class="block mb-1 font-medium">PR Number</label>
-       <input id="r_pr" class="w-full border border-slate-300 rounded-lg px-3 py-2"/>
+       <input id="r_pr" class="${inp}"/>
      </div>
-     <div>
+     </div>
+     <div >
        <label class="block mb-1 font-medium">Link to Maintenance (optional)</label>
-       <select id="r_maint" class="w-full border border-slate-300 rounded-lg px-3 py-2">
+       <select id="r_maint" class="${inp}">
          <option value="">— None —</option>
          ${(maint||[]).map(m=>`<option value="${m.id}">${escapeHtml(m.vehicle_name)} · ${escapeHtml(m.maintenance_item)}</option>`).join('')}
        </select>
      </div>
-     <div class="md:col-span-2">
+     <div >
        <label class="block mb-1 font-medium">Requirement Description</label>
-       <textarea id="r_desc" rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2"></textarea>
+       <textarea id="r_desc" rows="2" class="${inp}"></textarea>
      </div>
-     <div class="md:col-span-2">
+     <div >
        <label class="block mb-1 font-medium">Remarks</label>
-       <textarea id="r_remarks" rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2"></textarea>
+       <textarea id="r_remarks" rows="2" class="${inp}"></textarea>
      </div>
-   </form>`,
-   `<button onclick="closeModal()" class="px-3 py-1.5 text-sm border border-slate-300 rounded-lg">Cancel</button>
-    <button onclick="saveReq()" class="px-4 py-1.5 text-sm bg-teal-600 hover:bg-teal-700 text-white rounded-lg">Submit</button>`);
+   </form>
+      <div class="flex justify-end gap-2 mt-4">
+        <button type="button" onclick="reqReset()" class="px-4 py-2 text-sm border border-slate-300 bg-white rounded-lg hover:bg-slate-50">Clear Form</button>
+        <button id="reqSubmitBtn" type="button" onclick="saveReq()" class="px-5 py-2 text-sm font-medium bg-teal-600 hover:bg-teal-700 text-white rounded-lg">Submit</button>
+      </div>
+    </div>
+  </div>`;
+  lucide.createIcons();
+  reqRenderVehicles(); reqRenderItems();
+}
+
+/* ---------- vehicles ---------- */
+function reqVehFiltered(){ return REQ.vehicles.filter(v=>reqMatch(v.vehicle_name+' '+reqVehCode(v), REQ.vq)); }
+function reqRenderVehicles(){
+  const host = document.getElementById('r_vlist'); if (!host || !REQ) return;
+  host.innerHTML = reqVehFiltered().map(v=>`<label class="perm-chip flex items-center gap-2 text-sm">
+      <input type="checkbox" ${REQ.vSel.has(String(v.id))?'checked':''} data-vid="${escapeHtml(String(v.id))}" onchange="reqVehToggle(this.dataset.vid,this.checked)"/>
+      <span class="min-w-0"><span class="block truncate">${escapeHtml(v.vehicle_name)}</span><span class="block text-[11px] font-mono text-slate-500 font-normal">${escapeHtml(reqVehCode(v))}</span></span>
+    </label>`).join('') || `<div class="col-span-full text-center text-slate-400 py-4">No vehicles match your search.</div>`;
+  reqRenderVehSel();
+}
+function reqRenderVehSel(){
+  const host = document.getElementById('r_vsel'); if (!host || !REQ) return;
+  const arr = [...REQ.vSel.values()];
+  const cnt = document.getElementById('r_vcount'); if (cnt) cnt.textContent = arr.length ? `(${arr.length} selected)` : '';
+  host.innerHTML = arr.length
+    ? `<div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto scroll-thin">${arr.map(v=>`<span class="inline-flex items-center gap-1 bg-teal-50 text-teal-700 border border-teal-200 rounded-full pl-2.5 pr-1 py-0.5 text-xs font-medium">${escapeHtml(v.vehicle_name)} · <span class="font-mono">${escapeHtml(reqVehCode(v))}</span><button type="button" data-vid="${escapeHtml(String(v.id))}" onclick="reqVehRemove(this.dataset.vid)" class="w-4 h-4 rounded-full hover:bg-teal-200 flex items-center justify-center leading-none" title="Remove" aria-label="Remove vehicle">&times;</button></span>`).join('')}</div>`
+    : `<div class="text-xs text-slate-400">No vehicle selected yet.</div>`;
+  reqUpdateSummary();
+}
+function reqVehToggle(id,on){ const v=REQ.vById.get(String(id)); if(!v) return; if(on) REQ.vSel.set(String(id),v); else REQ.vSel.delete(String(id)); reqRenderVehSel(); }
+function reqVehRemove(id){ REQ.vSel.delete(String(id)); reqRenderVehicles(); }
+function reqVehSearch(q){ REQ.vq=q; reqRenderVehicles(); }
+function reqVehAll(){ reqVehFiltered().forEach(v=>REQ.vSel.set(String(v.id),v)); reqRenderVehicles(); }   // selects everything matching the current search
+function reqVehClear(){ REQ.vSel.clear(); reqRenderVehicles(); }
+
+/* ---------- items ---------- */
+function reqRenderItems(){
+  const host = document.getElementById('r_items'); if (!host || !REQ) return;
+  const cls = 'w-full border border-slate-300 rounded-lg px-3 py-2 bg-white';
+  host.innerHTML = REQ.rows.map((r,n)=>{
+    const uoms = REQ_UOMS.includes(r.uom) ? REQ_UOMS : REQ_UOMS.concat(r.uom);
+    return `<div data-card="${r.uid}" class="rounded-lg border border-slate-200 bg-slate-50 p-3 transition">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-semibold text-slate-600">Item ${n+1}</span>
+        <button type="button" onclick="reqRemoveRow('${r.uid}')" class="text-slate-400 hover:text-red-600 p-1" title="Remove this item" aria-label="Remove item"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+      </div>
+      <div class="relative">
+        <input id="ri_q_${r.uid}" type="text" autocomplete="off" placeholder="Type to search item name or code…" value="${escapeHtml(r.item?reqItemLabel(r.item):r.q)}"
+          oninput="reqItemType('${r.uid}',this)" onfocus="reqItemFocus('${r.uid}',this)" onblur="reqItemBlur('${r.uid}')" class="${cls}"/>
+        <div id="ri_dd_${r.uid}" class="hidden absolute z-20 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-56 overflow-y-auto scroll-thin"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mt-3">
+        <div><label class="block mb-1 text-xs font-medium">Quantity *</label>
+          <input id="ri_qty_${r.uid}" type="number" min="0.01" step="0.01" value="${escapeHtml(r.qty)}" oninput="reqSetField('${r.uid}','qty',this.value)" class="${cls}"/></div>
+        <div><label class="block mb-1 text-xs font-medium">UoM *</label>
+          <select id="ri_uom_${r.uid}" onchange="reqSetField('${r.uid}','uom',this.value)" class="${cls}">${uoms.map(u=>`<option value="${escapeHtml(u)}" ${u===r.uom?'selected':''}>${escapeHtml(u)}</option>`).join('')}</select></div>
+      </div>
+    </div>`;
+  }).join('');
+  lucide.createIcons(); reqUpdateSummary();
+}
+function reqSetField(uid,f,val){ const r=reqRow(uid); if(r) r[f]=val; }
+function reqItemType(uid,el){ const r=reqRow(uid); if(!r) return; r.item=null; r.q=el.value; reqShowDD(uid); reqUpdateSummary(); }
+function reqItemFocus(uid,el){ const r=reqRow(uid); if(!r) return; if(r.item) el.select(); else reqShowDD(uid); }
+function reqItemBlur(uid){
+  setTimeout(()=>{
+    const dd=document.getElementById('ri_dd_'+uid); if(dd) dd.classList.add('hidden');
+    const r=reqRow(uid), inp=document.getElementById('ri_q_'+uid);
+    if (r && r.item && inp) inp.value = reqItemLabel(r.item);   // undo half-finished edits of a chosen item
+  },200);
+}
+function reqShowDD(uid){
+  const r=reqRow(uid), dd=document.getElementById('ri_dd_'+uid); if(!r||!dd) return;
+  const q=(r.q||'').trim();
+  if (!q){
+    dd.innerHTML = `<div class="px-3 py-2 text-xs text-slate-500">Type an item name or code to search ${REQ.idx.length.toLocaleString()} items…</div>`;
+  } else {
+    const taken = new Set(REQ.rows.filter(x=>x.uid!==uid && x.item).map(x=>String(x.item.id)));
+    const ql=q.toLowerCase(), toks=ql.split(/\s+/).filter(Boolean), tns=toks.map(reqAlnum);
+    const hits=[];
+    for (const e of REQ.idx){
+      let ok=true;
+      for (let k=0;k<toks.length;k++){ if(!(e.h.includes(toks[k]) || (tns[k] && e.hn.includes(tns[k])))){ ok=false; break; } }
+      if (ok) hits.push(e);
+    }
+    const score = e => e.n.startsWith(ql)?0 : e.n.includes(ql)?1 : 2;
+    hits.sort((a,b)=>score(a)-score(b) || (a.n<b.n?-1:a.n>b.n?1:0));
+    const shown=hits.slice(0,30);
+    dd.innerHTML = shown.length
+      ? shown.map(e=>{ const i=e.i, t=taken.has(String(i.id));
+          return `<button type="button" ${t?'disabled':''} data-uid="${r.uid}" data-iid="${escapeHtml(String(i.id))}" onclick="reqPickItem(this.dataset.uid,this.dataset.iid)" class="block w-full text-left px-3 py-2 border-b border-slate-100 last:border-0 ${t?'opacity-50 cursor-not-allowed':'hover:bg-teal-50'}">
+            <span class="block text-sm font-medium text-slate-800">${escapeHtml(i.item_name)}</span>
+            <span class="block text-[11px] text-slate-500">${escapeHtml(i.item_code||'')}${i.item_category?' · '+escapeHtml(i.item_category):''} · ${escapeHtml(i.unit||'')}${i.status==='Inactive'?' · Inactive':''}${t?' · Already added':''}</span></button>`; }).join('')
+        + (hits.length>shown.length ? `<div class="px-3 py-2 text-xs text-slate-500 bg-slate-50">Showing ${shown.length} of ${hits.length} matches — keep typing to narrow down.</div>` : '')
+      : `<div class="px-3 py-2 text-xs text-slate-500">No items match “${escapeHtml(q)}”.</div>`;
+  }
+  dd.classList.remove('hidden');
+  if (dd.scrollIntoView) dd.scrollIntoView({block:'nearest'});
+}
+function reqPickItem(uid,iid){
+  const r=reqRow(uid), it=REQ.iById.get(String(iid)); if(!r||!it) return;
+  if (REQ.rows.some(x=>x.uid!==uid && x.item && String(x.item.id)===String(it.id))){ toast('This item is already added.','error'); return; }
+  r.item=it; r.q=''; r.uom = it.unit || r.uom || 'PCS';
+  reqRenderItems();
+  const el=document.getElementById('ri_qty_'+uid); if(el){ el.focus(); el.select(); }
+}
+function reqAddRow(){
+  const empty=REQ.rows.find(r=>!r.item);
+  if (empty){ toast('Select an item in the empty row first.','error'); const el=document.getElementById('ri_q_'+empty.uid); if(el) el.focus(); return; }
+  const r=reqNewRow(); REQ.rows.push(r); reqRenderItems();
+  const el=document.getElementById('ri_q_'+r.uid); if(el){ el.scrollIntoView({block:'center',behavior:'smooth'}); el.focus(); }
+}
+function reqRemoveRow(uid){
+  if (REQ.rows.length===1) REQ.rows[0]=reqNewRow(); else REQ.rows=REQ.rows.filter(r=>r.uid!==uid);
+  reqRenderItems();
+}
+function reqUpdateSummary(){
+  const el=document.getElementById('r_summary'); if(!el||!REQ) return;
+  const v=REQ.vSel.size, i=REQ.rows.filter(r=>r.item).length, n=v*i;
+  el.textContent = n ? `${v} vehicle${v>1?'s':''} × ${i} item${i>1?'s':''} = ${n} requirement record${n>1?'s':''} will be created.` : 'Select at least one vehicle and one item.';
+}
+
+/* ---------- save ---------- */
+/* One submission = one request number: DDMMYY + 4-digit daily sequence (e.g. 1911260001). All vehicle x item records of a submission share it. */
+async function reqNextSubmissionId(){
+  const d=new Date(), p=n=>String(n).padStart(2,'0');
+  const prefix = p(d.getDate())+p(d.getMonth()+1)+p(d.getFullYear()%100);
+  let seq=0;
+  const { data, error } = await db.from('item_requirements').select('requirement_id').like('requirement_id', prefix+'%').order('requirement_id',{ascending:false}).limit(50);
+  if (error) throw error;
+  (data||[]).forEach(r=>{ const m=/^(\d{6})(\d{4})$/.exec(String(r.requirement_id||'')); if(m && m[1]===prefix) seq=Math.max(seq,parseInt(m[2],10)); });
+  return prefix + String(seq+1).padStart(4,'0');
+}
+const reqIsMissingCol = e => e && (e.code==='PGRST204' || e.code==='42703' || /could not find the .* column|column .* does not exist/i.test(e.message||''));
+async function reqInsertOne(p){
+  /* item_code / uom are stored when the table has those columns; otherwise UoM is appended to the description */
+  const strip = o => { const c={...o}; delete c.uom; delete c.item_code; c.description=((o.description||'')+' [UoM: '+o.uom+']').trim(); return c; };
+  let res = await db.from('item_requirements').insert(REQ_EXTRA_COLS===false?strip(p):p).select().single();
+  if (res.error && REQ_EXTRA_COLS!==false && reqIsMissingCol(res.error)){
+    REQ_EXTRA_COLS=false;
+    res = await db.from('item_requirements').insert(strip(p)).select().single();
+  } else if (!res.error && REQ_EXTRA_COLS===null) REQ_EXTRA_COLS=true;
+  return res;
+}
+function reqSameVehicle(m,v){
+  return !!m && (String(m.vehicle_id)===String(v.id) || (m.registration_number && m.registration_number===reqVehCode(v)) || m.vehicle_name===v.vehicle_name);
+}
+/* The vehicle list comes from vehicle_master, whose ids are not UUIDs, so item_requirements.vehicle_id / item_id
+   cannot hold them (they are saved by name + code instead). If those columns are still NOT NULL, show the one-time fix. */
+function reqShowDbFix(col){
+  const sql = col==='requirement_trigger' ? 'select t.tgname, pg_get_functiondef(t.tgfoid) as definition from pg_trigger t where t.tgrelid = \'public.item_requirements\'::regclass and not t.tgisinternal;  -- copy the result and send it to Claude' : col==='requirement_id' ? 'alter table public.item_requirements drop constraint if exists item_requirements_requirement_id_key;' : 'alter table public.item_requirements alter column vehicle_id drop not null, alter column item_id drop not null;';
+  const old=document.getElementById('reqDbFix'); if(old) old.remove();
+  const host=document.getElementById('r_summary'); if(!host) { toast('Database setting needed: '+sql,'error'); return; }
+  host.insertAdjacentHTML('afterend',`<div id="reqDbFix" class="mt-2 p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-800">
+    <b>${col==='requirement_trigger'?'Saved with the old number — one-time database fix needed.':'Nothing was saved — one-time database fix needed.'}</b> ${col==='requirement_trigger'?'The database is overwriting the request number with its own (old REQ-…) numbering through a trigger.':col==='requirement_id'?'The request number is now shared by all records of one submission, but the table still requires <code>requirement_id</code> to be unique.':'The table still requires <code>'+escapeHtml(col)+'</code>, but vehicles/items here are saved by name and code.'}
+    ${col==='requirement_trigger'?'This submission was saved with the old number, so do not submit it again. Run this in the Supabase SQL editor and send the result:':'Run this once in the Supabase SQL editor, then press Submit again (existing data is not affected):'}
+    <pre class="mt-1.5 p-2 bg-white border border-red-200 rounded overflow-x-auto whitespace-pre-wrap select-all">${escapeHtml(sql)}</pre>
+    <button type="button" class="mt-1 text-teal-700 font-medium hover:underline" onclick="navigator.clipboard&&navigator.clipboard.writeText(this.previousElementSibling.textContent).then(()=>toast('SQL copied','success'))">Copy SQL</button></div>`);
+  const b=document.getElementById('reqDbFix'); if(b) b.scrollIntoView({block:'center',behavior:'smooth'});
 }
 async function saveReq(){
-  const vSel = document.getElementById('r_vehicle');
-  const iSel = document.getElementById('r_item');
-  const vehicleId = vSel.value;
-  const itemId = iSel.value;
-  if (!vehicleId || !itemId){ toast('Select vehicle & item.','error'); return; }
-  const qty = parseFloat(document.getElementById('r_qty').value);
-  if (!qty || qty<=0){ toast('Enter valid quantity.','error'); return; }
-  const need = document.getElementById('r_need').value;
-  if (!need){ toast('Enter need by date.','error'); return; }
-  const maintId = document.getElementById('r_maint').value || null;
-  const payload = {
-    vehicle_id: vehicleId,
-    vehicle_name: vSel.options[vSel.selectedIndex].dataset.name,
-    registration_number: vSel.options[vSel.selectedIndex].dataset.reg,
-    item_id: itemId,
-    item_name: iSel.options[iSel.selectedIndex].dataset.name,
-    required_quantity: qty,
-    need_by_date: need,
-    pr_number: document.getElementById('r_pr').value.trim()||null,
-    description: document.getElementById('r_desc').value.trim(),
-    remarks: document.getElementById('r_remarks').value.trim(),
-    submitted_by: currentUser.id,
-    maintenance_id: maintId,
-    status: 'Submitted to ROM'
-  };
-  const { data, error } = await db.from('item_requirements').insert(payload).select().single();
-  if (error){ toast(error.message,'error'); return; }
-  if (maintId){
-    await db.from('maintenance_records').update({status:'Item Requirement Pending', item_requirement_id: data.id}).eq('id', maintId);
+  if (!REQ) return;
+  const vehs=[...REQ.vSel.values()];
+  if (!vehs.length){ toast('Select at least one vehicle.','error'); const el=document.getElementById('r_vsearch'); if(el) el.focus(); return; }
+  const seen=new Set();
+  for (let n=0;n<REQ.rows.length;n++){
+    const r=REQ.rows[n];
+    const bad=(msg,fid)=>{ toast(`Item ${n+1}: ${msg}`,'error');
+      const card=document.querySelector(`[data-card="${r.uid}"]`);
+      if(card){ card.classList.add('ring-2','ring-red-400'); card.scrollIntoView({block:'center',behavior:'smooth'}); setTimeout(()=>card.classList.remove('ring-2','ring-red-400'),2500); }
+      const f=document.getElementById(fid+r.uid); if(f) f.focus(); };
+    if (!r.item){ bad('select an item from the search results.','ri_q_'); return; }
+    if (!(parseFloat(r.qty)>0)){ bad('enter a valid quantity.','ri_qty_'); return; }
+    if (!r.uom){ bad('select a UoM.','ri_uom_'); return; }
+    const key=String(r.item.id);
+    if (seen.has(key)){ bad('this item is added more than once.','ri_q_'); return; }
+    seen.add(key);
   }
-  await logActivity('CREATE_ITEM_REQUIREMENT','item_requirements', data.id, `${data.requirement_id} - ${data.item_name} x${qty}`);
-  toast(`Submitted: ${data.requirement_id}`,'success'); closeModal(); refreshRequirements();
+  const need=document.getElementById('r_need').value;
+  if (!need){ toast('Enter need by date.','error'); return; }
+  const maintId=document.getElementById('r_maint').value || null;
+  const maintRec=maintId ? REQ.maint.find(m=>String(m.id)===String(maintId)) : null;
+  const pr=document.getElementById('r_pr').value.trim()||null;
+  const desc=document.getElementById('r_desc').value.trim();
+  const remarks=document.getElementById('r_remarks').value.trim();
+  let submissionId;
+  try{ submissionId = await reqNextSubmissionId(); }catch(e){ toast('Could not generate the request number: '+(e.message||e),'error'); return; }
+  const payloads=[];
+  vehs.forEach(v=>{
+    const link = maintId && (vehs.length===1 || reqSameVehicle(maintRec,v)) ? maintId : null;  // with several vehicles, link only the maintenance record's own vehicle
+    REQ.rows.forEach(r=>payloads.push({
+      requirement_id: submissionId,
+      /* numeric ids from the master tables cannot go into uuid columns (the "invalid input syntax for type uuid" error);
+         the vehicle / item are still stored by name, code and registration number */
+      vehicle_id: reqIsUuid(v.id)?v.id:null,
+      vehicle_name: v.vehicle_name,
+      registration_number: reqVehCode(v),
+      item_id: reqIsUuid(r.item.id)?r.item.id:null,
+      item_name: r.item.item_name,
+      item_code: r.item.item_code||null,
+      required_quantity: parseFloat(r.qty),
+      uom: r.uom,
+      need_by_date: need,
+      pr_number: pr,
+      description: desc,
+      remarks,
+      submitted_by: currentUser.id,
+      maintenance_id: link,
+      status: 'Submitted to ROM'
+    }));
+  });
+  const btn=document.getElementById('reqSubmitBtn'); if(btn){ btn.disabled=true; btn.textContent='Submitting…'; }
+  const created=[];
+  try{
+    for (const p of payloads){
+      const { data, error } = await reqInsertOne(p);
+      if (error) throw error;
+      created.push(data);
+    }
+  }catch(error){
+    let msg=error.message||'Could not save the requirement.';
+    if (created.length){   // all-or-nothing: undo what was already saved in this submission
+      const { data:del, error:de } = await db.from('item_requirements').delete().in('id', created.map(c=>c.id)).select('id');
+      msg += (de || !del || del.length!==created.length) ? ` (${created.length} record(s) were saved before the error — please check the list.)` : ' Nothing was saved.';
+    }
+    if (btn){ btn.disabled=false; btn.textContent='Submit'; }
+    const nn = /null value in column "(vehicle_id|item_id)"/i.exec(error.message||'');
+    if (error.code==='23505' || /duplicate key|unique/i.test(error.message||'')){ reqShowDbFix('requirement_id'); return; }
+    if (error.code==='23502' || nn){ reqShowDbFix(nn?nn[1]:'vehicle_id'); return; }
+    toast(msg,'error'); return;
+  }
+  /* If the database (a trigger / default) replaced the number with its own REQ-xxxx, write ours back. */
+  if (created.some(c=>c.requirement_id!==submissionId)){
+    const { data:fixed, error:fe } = await db.from('item_requirements').update({requirement_id: submissionId}).in('id', created.map(c=>c.id)).select('id, requirement_id');
+    if (!fe && fixed && fixed.length===created.length){ created.forEach(c=>{ c.requirement_id=submissionId; }); }
+    else { console.error('Could not set request number', fe, fixed); reqShowDbFix('requirement_trigger'); }
+  }
+  const linked=created.find(c=>c.maintenance_id);
+  if (linked) await db.from('maintenance_records').update({status:'Item Requirement Pending', item_requirement_id: linked.id}).eq('id', linked.maintenance_id);
+  await Promise.all(created.map(c=>logActivity('CREATE_ITEM_REQUIREMENT','item_requirements', c.id, `${c.requirement_id} - ${c.item_name} x${c.required_quantity}${c.uom?' '+c.uom:''}`)));
+  const recs = created.map((c,i)=>({...payloads[i], ...c, uom: c.uom||payloads[i].uom, item_code: c.item_code||payloads[i].item_code}));
+  let pdfOk=false;
+  try{ pdfOk = reqMakeReceipt(recs, {submitter: currentUser, maint: maintRec ? `${maintRec.vehicle_name} - ${maintRec.maintenance_item}` : null}); }catch(e){ console.error('Receipt error',e); }
+  const base = created.length===1 ? `Submitted: ${created[0].requirement_id}` : `Submitted request ${created[0].requirement_id} (${created.length} records)`;
+  if (created[0].requirement_id!==submissionId) console.warn('Database replaced the request number', submissionId, '->', created[0].requirement_id);
+  toast(base + (pdfOk ? '. PDF receipt downloaded.' : '. (Receipt not generated - use the receipt icon in the list.)'),'success');
+  reqAfterSave();
 }
+
 async function viewReq(id){
   const { data: r } = await db.from('item_requirements').select('*').eq('id', id).maybeSingle();
   if (!r){ toast('Not found','error'); return; }
   const { data: rom } = await db.from('rom_reviews').select('*').eq('requirement_id', id).order('reviewed_at',{ascending:false}).limit(1).maybeSingle();
   const { data: sc } = await db.from('supply_chain_schedules').select('*').eq('requirement_id', id).order('updated_at',{ascending:false}).limit(1).maybeSingle();
+  const _users = await reqLoadUsers(), _su = r.submitted_by ? _users.get(String(r.submitted_by)) : null;
   const info = [
     ['Requirement ID', r.requirement_id],
     ['Vehicle', `${r.vehicle_name} (${r.registration_number})`],
     ['Item', r.item_name],
-    ['Required Quantity', r.required_quantity],
+    ['Required Quantity', escapeHtml(r.required_quantity+(r.uom?' '+r.uom:''))],
     ['Need By Date', fmtDate(r.need_by_date)],
     ['PR Number', r.pr_number||'—'],
     ['Description', r.description||'—'],
     ['Remarks', r.remarks||'—'],
-    ['Submitted By', r.submitted_by?escapeHtml(currentUser.email):'—'],
+    ['Submitted By', _su ? escapeHtml((_su.full_name||'')+(_su.email?' · '+_su.email:'')) : '—'],
     ['Submission Date', fmtDateTime(r.submission_date)],
     ['Status', badge(r.status)],
   ];
@@ -1423,7 +2023,7 @@ const IM_HEADER = ['item_name','item_code','item_category','unit','description',
 let imCsvFile = null;
 
 ROUTES.item_master = async (host)=>{
-  imCsvFile = null;
+  imCsvFile = null; imFCat=''; imFQ=''; imPg=0;
   const inp = 'w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm';
   host.innerHTML = `
    <p class="text-sm text-slate-500 mb-4">Add a new item or spare part, or import many items at once from a CSV file.</p>
@@ -1561,10 +2161,8 @@ async function imImport(){
   imReport(true, `Imported ${good.length} item${good.length>1?'s':''}${problems.length?`, skipped ${problems.length}`:''}.`, problems);
   toast(`Imported ${good.length} items`,'success');
 }
-async function refreshItemsMaster(){
-  const wrap=document.getElementById('iWrap'); if(!wrap) return;
-  const data = await loadItems();
-  const rows = data.map(i=>`<tr>
+const IM_PAGE = 50; let imAll=[], imPg=0, imFCat='', imFQ='';
+const imRow = i => `<tr>
     <td class="px-4 py-2">${escapeHtml(i.item_name)}</td>
     <td class="px-4 py-2 font-mono text-xs">${escapeHtml(i.item_code)}</td>
     <td class="px-4 py-2">${escapeHtml(i.item_category||'—')}</td>
@@ -1573,16 +2171,44 @@ async function refreshItemsMaster(){
     <td class="px-4 py-2">${badge(i.status)}</td>
     <td class="px-4 py-2">${fmtDate(i.created_at)}</td>
     <td class="px-4 py-2 whitespace-nowrap">
-      <button onclick="openItemForm('${i.id}')" class="text-teal-700 hover:underline text-xs">Edit</button>
-      <button onclick="deleteItem('${i.id}')" class="text-red-600 hover:underline text-xs ml-2">Delete</button>
-    </td>
-  </tr>`).join('') || emptyRow(8,'No items.');
+      <button onclick="openItemForm('${i.id}')" class="p-1.5 rounded-lg text-slate-500 align-middle hover:text-teal-700 hover:bg-teal-50" title="Edit" aria-label="Edit"><i data-lucide="pencil" class="w-4 h-4 pointer-events-none"></i></button>
+      <button onclick="deleteItem('${i.id}')" class="p-1.5 rounded-lg text-slate-500 align-middle hover:text-red-600 hover:bg-red-50" title="Delete" aria-label="Delete"><i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i></button>
+    </td></tr>`;
+async function refreshItemsMaster(){
+  const wrap=document.getElementById('iWrap'); if(!wrap) return;
+  try{ imAll = await loadItems(); }catch(err){ wrap.innerHTML=`<div class="text-red-600 text-sm">Could not load items: ${escapeHtml(err.message)}</div>`; return; }
+  const cats = [...new Set(imAll.map(i=>(i.item_category||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true})), hasNone = imAll.some(i=>!(i.item_category||'').trim());
+  if (imFCat && imFCat!=='__none' && !cats.includes(imFCat)) imFCat='';
   wrap.innerHTML = tableCard('Item Master',
-    ['Name','Code','Category','Unit','Description','Status','Created','Actions'], rows,
-    {toolbar:`<input placeholder="Search…" onkeyup="filterIMTable(this.value)" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm w-48"/>`});
-  lucide.createIcons();
+    ['Name','Code','Category','Unit','Description','Status','Created','Actions'], '',
+    {toolbar:`<div class="flex flex-wrap items-center gap-2"><span id="im_cnt" class="text-xs text-slate-500"></span>
+      <select id="im_fcat" onchange="filterIMTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm"><option value="">All categories</option>${cats.map(c=>`<option value="${escapeHtml(c)}" ${c===imFCat?'selected':''}>${escapeHtml(c)}</option>`).join('')}${hasNone?`<option value="__none" ${imFCat==='__none'?'selected':''}>No category</option>`:''}</select>
+      <input id="im_fq" placeholder="Search…" value="${escapeHtml(imFQ)}" oninput="filterIMTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm w-48"/></div>`})
+    + `<div id="im_pager" class="flex items-center justify-between gap-2 mt-3 text-sm"></div>`;
+  lucide.createIcons(); imRender();
 }
-function filterIMTable(q){q=q.toLowerCase();document.querySelectorAll('#iWrap tbody tr').forEach(tr=>tr.style.display=tr.innerText.toLowerCase().includes(q)?'':'none');}
+function imFiltered(){
+  const q=imFQ.trim().toLowerCase();
+  return imAll.filter(i=>{ const c=(i.item_category||'').trim();
+    if (imFCat && !(imFCat==='__none' ? c==='' : c===imFCat)) return false;
+    return !q || [i.item_name,i.item_code,c,i.unit,i.description,i.status].some(v=>String(v??'').toLowerCase().includes(q)); });
+}
+function imRender(){
+  const tb=document.querySelector('#iWrap tbody'), cnt=document.getElementById('im_cnt'), pg=document.getElementById('im_pager'); if(!tb) return;
+  const filtering=!!(imFCat||imFQ.trim()), total=imAll.length; let list, from=0;
+  if (filtering){ list=imFiltered(); }
+  else { const pages=Math.max(1,Math.ceil(total/IM_PAGE)); imPg=Math.max(0,Math.min(imPg,pages-1)); from=imPg*IM_PAGE; list=imAll.slice(from,from+IM_PAGE); }
+  tb.innerHTML = list.map(imRow).join('') || emptyRow(8, filtering?'No items match the filters.':'No items.');
+  if (cnt) cnt.textContent = filtering ? `${list.length} of ${total} items` : `${total} items`;
+  if (pg) pg.innerHTML = filtering ? `<span class="text-slate-500">Showing all ${list.length} matching item${list.length===1?'':'s'}</span><span></span>`
+    : `<button onclick="imGo(-1)" ${imPg===0?'disabled':''} class="border border-slate-300 rounded-lg px-3 py-1.5 disabled:opacity-50">Previous</button><span class="text-slate-500">${total?from+1:0}–${from+list.length} of ${total}</span><button onclick="imGo(1)" ${from+list.length>=total?'disabled':''} class="border border-slate-300 rounded-lg px-3 py-1.5 disabled:opacity-50">Next</button>`;
+  lucide.createIcons();   // draw the Edit/Delete icons in the freshly rendered rows
+}
+function imGo(d){ imPg+=d; imRender(); }
+function filterIMTable(){
+  const sel=document.getElementById('im_fcat'), inp=document.getElementById('im_fq'); if(!sel||!inp) return;
+  imFCat=sel.value; imFQ=inp.value; imPg=0; imRender();
+}
 async function openItemForm(id=''){
   let i=null;
   if (id){ const {data}=await db.from('items').select('*').eq('id',id).maybeSingle(); i=data; }
@@ -1793,7 +2419,9 @@ async function refreshUA(){
       dash_maint_calendar:'Maintenance Calendar',
       dash_maint_settings:'Maintenance Interval Settings'
     };
-    const dashboards = Object.keys(LABELS).filter(k=>perms[k]).map(k=>LABELS[k]);
+    const _pgs = Object.keys(PAGES).filter(n=>!PAGES[n].superOnly);
+    const _ok = _pgs.filter(n=>pageAllowedFor(perms,n,p.role));
+    const dashboards = _ok.length===_pgs.length ? ['All pages'] : _ok.map(n=>PAGES[n].label);
     const isSelf = p.id===currentUser.id;
     const isSuperAdmin = p.role==='Super Admin';
     const protect = isSuperAdmin || isSelf;
@@ -1803,32 +2431,54 @@ async function refreshUA(){
       <td class="px-4 py-2"><div class="flex flex-wrap gap-1">${dashboards.length?dashboards.map(d=>`<span class="badge bg-teal-50 text-teal-700">${d}</span>`).join(''):'<span class="text-slate-400 text-xs">none</span>'}</div></td>
       <td class="px-4 py-2">${badge(p.account_status)}</td>
       <td class="px-4 py-2">${fmtDateTime(p.updated_at)}</td>
-      <td class="px-4 py-2 whitespace-nowrap text-xs">
-        <button onclick="openUserForm('${p.id}')" class="text-teal-700 hover:underline mr-2" ${protect?'disabled title="Protected"':''}>Edit</button>
-        <button onclick="resetPassword('${escapeHtml(p.email)}')" class="text-navy-800 hover:underline mr-2" ${isSelf?'disabled title="Self"':''}>Reset Pwd</button>
-        <button onclick="toggleDisable('${p.id}','${p.account_status}')" class="text-amber-700 hover:underline mr-2" ${protect?'disabled title="Protected"':''}>${p.account_status==='Active'?'Disable':'Enable'}</button>
-        <button onclick="deleteUser('${p.id}','${escapeHtml(p.email)}')" class="text-red-600 hover:underline" ${protect?'disabled title="Protected"':''}>Delete</button>
+      <td class="px-4 py-2 whitespace-nowrap">
+        <div class="flex items-center gap-1">
+        <button onclick="openUserForm('${p.id}')" class="p-1.5 rounded-lg text-slate-500 hover:text-teal-700 hover:bg-teal-50 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent" title="${protect?'Protected':'Edit'}" aria-label="Edit" ${protect?'disabled':''}><i data-lucide="pencil" class="w-4 h-4"></i></button>
+        <button onclick="resetPassword('${escapeHtml(p.email)}')" class="p-1.5 rounded-lg text-slate-500 hover:text-navy-800 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent" title="${isSelf?'Self':'Reset Password'}" aria-label="Reset Password" ${isSelf?'disabled':''}><i data-lucide="key-round" class="w-4 h-4"></i></button>
+        <button onclick="toggleDisable('${p.id}','${p.account_status}')" class="p-1.5 rounded-lg text-slate-500 hover:text-amber-700 hover:bg-amber-50 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent" title="${protect?'Protected':(p.account_status==='Active'?'Disable':'Enable')}" aria-label="${p.account_status==='Active'?'Disable':'Enable'}" ${protect?'disabled':''}><i data-lucide="${p.account_status==='Active'?'user-x':'user-check'}" class="w-4 h-4"></i></button>
+        <button onclick="deleteUser('${p.id}','${escapeHtml(p.email)}')" class="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent" title="${protect?'Protected':'Delete'}" aria-label="Delete" ${protect?'disabled':''}><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+        </div>
       </td>
     </tr>`;
   }).join('') || emptyRow(6,'No users yet.');
-  wrap.innerHTML = tableCard('Users', ['Name','Email','Accessible Dashboards','Status','Last Updated','Actions'], rows);
+  wrap.innerHTML = tableCard('Users', ['Name','Email','Accessible Pages','Status','Last Updated','Actions'], rows);
   lucide.createIcons();
 }
 function filterUA(q){q=q.toLowerCase();document.querySelectorAll('#uaWrap tbody tr').forEach(tr=>tr.style.display=tr.innerText.toLowerCase().includes(q)?'':'none');}
 
+function uaPagesHtml(perms){
+  const groups={};
+  Object.entries(PAGES).forEach(([n,pg])=>{ if(!pg.superOnly) (groups[pg.group]=groups[pg.group]||[]).push(n); });
+  const ready = pgReady();
+  const cols = [...PG_SHARED].map(n=>'add column if not exists pg_'+n+' boolean').join(', ');
+  const sql = 'alter table public.user_permissions '+cols+';';
+  const banner = ready ? '' : `<div class="mb-2 p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-800">
+      <b>One-time database step needed for separate per-page access.</b> Until it is run, pages that share a permission
+      (e.g. all Data Entry pages) are still granted together. Run this once in the Supabase SQL editor — existing users keep their current access:
+      <pre class="mt-1.5 p-2 bg-white border border-amber-200 rounded overflow-x-auto whitespace-pre-wrap select-all">${escapeHtml(sql)}</pre>
+      <button type="button" class="mt-1 text-teal-700 font-medium hover:underline" onclick="navigator.clipboard&&navigator.clipboard.writeText(this.previousElementSibling.textContent).then(()=>toast('SQL copied','success'))">Copy SQL</button></div>`;
+  const body = Object.entries(groups).map(([g,names])=>`
+    <div class="mb-2">
+      <div class="flex items-center gap-2 mb-1"><span class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">${escapeHtml(g)}</span>
+        <button type="button" onclick="uaSetGroup(this,true)" class="text-[11px] text-teal-700 hover:underline">all</button>
+        <button type="button" onclick="uaSetGroup(this,false)" class="text-[11px] text-slate-500 hover:underline">none</button></div>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2">${names.map(n=>`<label class="perm-chip flex items-center gap-2 text-xs"><input type="checkbox" class="uaPg" id="pgp_${n}" ${pageAllowedFor(perms,n,'User')?'checked':''}/> <span>${escapeHtml(PAGES[n].label)}</span></label>`).join('')}</div>
+    </div>`).join('');
+  return `<div>
+    <label class="block mb-1 font-medium">Accessible Pages</label>
+    ${banner}
+    <div class="bg-slate-50 p-3 rounded-lg">${body}</div>
+    <div class="mt-2 flex gap-2 text-xs">
+      <button type="button" onclick="document.querySelectorAll('.uaPg').forEach(c=>c.checked=true)" class="text-teal-700 hover:underline">Select all pages</button>
+      <button type="button" onclick="document.querySelectorAll('.uaPg').forEach(c=>c.checked=false)" class="text-slate-600 hover:underline">Clear</button>
+    </div></div>`;
+}
+function uaSetGroup(btn,on){ btn.closest('.mb-2').querySelectorAll('.uaPg').forEach(c=>c.checked=on); }
 async function openUserForm(id=''){
   let p=null;
   if (id){ const {data}=await db.from('profiles').select('*, user_permissions!left(*)').eq('id',id).maybeSingle(); p=data; }
-  const perms = (p?.user_permissions&&p?.user_permissions[0])||{};
-  const DASH = [
-    ['dash_main','Main Dashboard'],['dash_vehicle_maintenance','Vehicle Maintenance'],
-    ['dash_pending_maintenance','Pending Maintenance'],['dash_item_requirement','Item Requirement Submission'],
-    ['dash_rom','ROM'],['dash_supply_chain','Supply Chain Management'],
-    ['dash_vehicle_master','QR Codes & Filter Dashboard'],['dash_item_master','Item Master'],['dash_data_entry','Data Entry (Record & History)'],
-    ['dash_maintenance_history','Maintenance History'],['dash_user_access','User Access'],
-    ['dash_reports','Reports'],['dash_settings','Settings'],
-    ['dash_maint_calendar','Maintenance Schedule Calendar'],['dash_maint_settings','Maintenance Interval Settings']
-  ];
+  const rawP = p?.user_permissions;
+  const perms = Array.isArray(rawP) ? (rawP[0]||{}) : (rawP||{});
   openModal(p?'Edit User':'Add New User', `
     <form class="space-y-3 text-sm">
       ${!p?`
@@ -1874,16 +2524,7 @@ async function openUserForm(id=''){
           </select>
         </div>
       </div>`}
-      <div>
-        <label class="block mb-1 font-medium">Accessible Dashboards</label>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-2 bg-slate-50 p-3 rounded-lg">
-          ${DASH.map(([k,label])=>`<label class="flex items-center gap-2 text-xs"><input type="checkbox" id="perm_${k}" ${perms[k]?'checked':''}/> ${label}</label>`).join('')}
-        </div>
-        <div class="mt-2 flex gap-2 text-xs">
-          <button type="button" onclick="document.querySelectorAll('[id^=perm_]').forEach(c=>c.checked=true)" class="text-teal-700 hover:underline">Select all</button>
-          <button type="button" onclick="document.querySelectorAll('[id^=perm_]').forEach(c=>c.checked=false)" class="text-slate-600 hover:underline">Clear</button>
-        </div>
-      </div>
+      ${uaPagesHtml(perms)}
     </form>`,
     `<button onclick="closeModal()" class="px-3 py-1.5 text-sm border border-slate-300 rounded-lg">Cancel</button>
      <button onclick="saveUser('${id}')" class="px-4 py-1.5 text-sm bg-teal-600 hover:bg-teal-700 text-white rounded-lg">${p?'Save Changes':'Create User'}</button>`);
@@ -1895,9 +2536,11 @@ async function saveUser(id){
   const role = document.getElementById('u_role').value;
   const status = document.getElementById('u_status').value;
   const perms = {};
-  ['dash_main','dash_vehicle_maintenance','dash_pending_maintenance','dash_item_requirement','dash_rom','dash_supply_chain','dash_vehicle_master','dash_item_master','dash_data_entry','dash_maintenance_history','dash_user_access','dash_reports','dash_settings','dash_maint_calendar','dash_maint_settings'].forEach(k=>{
-    perms[k] = document.getElementById('perm_'+k).checked;
-  });
+  const pgChecked = n => { const el=document.getElementById('pgp_'+n); return !!(el && el.checked); };
+  // legacy dash_* keys stay in sync: a key is on when at least one page using it is on
+  const keys = [...new Set(Object.values(PAGES).filter(p=>!p.superOnly).map(p=>p.key))];
+  keys.forEach(k=>{ perms[k] = Object.keys(PAGES).some(n=>PAGES[n].key===k && !PAGES[n].superOnly && pgChecked(n)); });
+  if (pgReady()) PG_SHARED.forEach(n=>{ perms['pg_'+n] = pgChecked(n); });
 
   if (!id){
     if (!name||!email){ toast('Name & email required.','error'); return; }
@@ -1923,7 +2566,7 @@ async function saveUser(id){
       toast(ce.message,'error'); return;
     }
     // 3) permissions
-    await db.from('user_permissions').upsert({ user_id: prof.id, ...perms });
+    await db.from('user_permissions').upsert({ user_id: prof.id, ...perms }, { onConflict: 'user_id' });
     await logActivity('CREATE_USER','profiles', prof.id, `${email} (${dept}/${role})`);
     toast('User created','success'); closeModal(); refreshUA();
   } else {
@@ -1934,7 +2577,7 @@ async function saveUser(id){
       full_name: name, department: dept, role, account_status: status
     }).eq('id', id);
     if (e1){ toast(e1.message,'error'); return; }
-    const { error: e2 } = await db.from('user_permissions').upsert({ user_id: id, ...perms });
+    const { error: e2 } = await db.from('user_permissions').upsert({ user_id: id, ...perms }, { onConflict: 'user_id' });
     if (e2){ toast(e2.message,'error'); return; }
     await logActivity('UPDATE_USER','profiles', id, `Updated ${email}`);
     toast('Saved','success'); closeModal(); refreshUA();
@@ -2119,11 +2762,12 @@ async function fqRefresh(){
     <td class="px-4 py-2 font-mono text-xs">${escapeHtml(v.code)}</td>
     <td class="px-4 py-2 whitespace-nowrap">
       <button onclick="fqShowQr('${v.id}')" class="text-teal-700 hover:underline text-xs">QR</button>
-      <button onclick="fqEdit('${v.id}')" class="text-teal-700 hover:underline text-xs ml-2">Edit</button>
-      <button onclick="fqDelete('${v.id}')" class="text-red-600 hover:underline text-xs ml-2">Delete</button>
+      <button onclick="fqEdit('${v.id}')" class="p-1.5 rounded-lg text-slate-500 align-middle hover:text-teal-700 hover:bg-teal-50" title="Edit" aria-label="Edit"><i data-lucide="pencil" class="w-4 h-4 pointer-events-none"></i></button>
+      <button onclick="fqDelete('${v.id}')" class="p-1.5 rounded-lg text-slate-500 align-middle hover:text-red-600 hover:bg-red-50" title="Delete" aria-label="Delete"><i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i></button>
     </td></tr>`).join('') || emptyRow(3,'No vehicles.');
   wrap.innerHTML = tableCard(`Registered Vehicles (${fqVehicles.length})`, ['Name','Code','Actions'], rows,
     {toolbar:`<input placeholder="Search…" onkeyup="fqFilterTable(this.value)" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm w-48"/>`});
+  lucide.createIcons();
 }
 function fqFilterTable(q){ q=q.toLowerCase(); document.querySelectorAll('#fqWrap tbody tr').forEach(tr=>tr.style.display=tr.innerText.toLowerCase().includes(q)?'':'none'); }
 
@@ -2717,8 +3361,8 @@ ROUTES.oil_record = async (host)=>{
   host.innerHTML=`
    <div class="max-w-2xl mx-auto space-y-4">
      <div class="${card}"><h3 class="text-xs font-semibold text-slate-500 uppercase mb-3">Date</h3>
-       <label class="block mb-1 text-sm font-medium">Date &amp; Time (automatic)</label>
-       <input id="oe_dt" readonly class="${inp} bg-slate-50"/></div>
+       <label class="block mb-1 text-sm font-medium">Date <span class="text-red-500">*</span></label>
+       <input type="date" id="oe_dt" max="${deToday()}" value="${deToday()}" class="${inp}"/></div>
 
      <div class="${card}"><h3 class="text-xs font-semibold text-slate-500 uppercase mb-3">Vehicle</h3>
        <label class="block mb-1 text-sm font-medium">Vehicle code or name <span class="text-red-500">*</span></label>
@@ -2746,8 +3390,7 @@ ROUTES.oil_record = async (host)=>{
      <div id="oe_err" class="text-red-600 text-sm min-h-[1rem]"></div>
      <button id="oe_save" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl py-3.5 text-base">&#10003; Save Oil Entry</button>
    </div>`;
-  const tick=()=>{ const e=document.getElementById('oe_dt'); if(e) e.value=fmtDateTime(new Date()); };
-  tick(); clearInterval(window._oeTick); window._oeTick=setInterval(tick,30000);
+  clearInterval(window._oeTick);
   oeBuildOils();
   await oeLoadVehicles();
   document.getElementById('oe_vq').addEventListener('input', oeSearch);
@@ -3091,7 +3734,7 @@ function dcPdf(){
 
 /* expose to inline handlers */
 window.logout = logout;
-window.toggleSidebar = toggleSidebar;
+window.toggleSidebar = toggleSidebar; window.toggleSwitcher = toggleSwitcher; window.swGo = swGo; window.swFilter = swFilter; window.swClose = swClose; window.renderHome = renderHome;
 window.closeModal = closeModal;
 window.viewMaintenance = viewMaintenance;
 window.openMaintenanceForm = openMaintenanceForm;
@@ -3227,16 +3870,18 @@ async function oeSave(){
   if(mr===''||isNaN(m)||m<0) return fail('Enter a valid meter reading (0 or more).');
   oeBusy=true;
   const b=document.getElementById('oe_save'); b.disabled=true; b.textContent='Saving…';
-  const gid = oeGid || (oeGid = rhUuid()), now=new Date().toISOString(), rm=document.getElementById('oe_rem').value.trim()||null;
+  const pickedDate=document.getElementById('oe_dt').value;
+  if(!pickedDate || pickedDate>deToday()){ oeBusy=false; b.disabled=false; b.innerHTML='&#10003; Save Oil Entry'; return fail(!pickedDate?'Select the date.':'The date cannot be in the future.'); }
+  const gid = oeGid || (oeGid = rhUuid()), now=(pickedDate===deToday()?new Date():new Date(pickedDate+'T12:00:00')).toISOString(), rm=document.getElementById('oe_rem').value.trim()||null;
   const v={vehicle_name:oeSel.vehicle_name, code:oeSel.code};
-  const rows=used.map(x=>({...rhBase(v,{id:x.o[2],item_name:x.o[0],item_code:x.o[3],item_category:x.o[4],unit:x.o[1]},deToday(),x.q,m,rm,
+  const rows=used.map(x=>({...rhBase(v,{id:x.o[2],item_name:x.o[0],item_code:x.o[3],item_category:x.o[4],unit:x.o[1]},pickedDate,x.q,m,rm,
       {source:'oil_entry',purpose:oePurpose,operator_name:(currentUser&&currentUser.full_name)||null,company:'Automobile',entry_datetime:now}), entry_group_id:gid}));
   const error = await rhInsert(rows);
   oeBusy=false; b.disabled=false; b.innerHTML='&#10003; Save Oil Entry';
   if(error){ fail('Not saved: '+error.message); toast('Oil entry not saved','error'); return; }
   try{ await logActivity('OIL_ENTRY_CREATE',RH_TABLE,null,`${oeSel.vehicle_name} (${oeSel.code})`); }catch(e){}
   toast('Oil entry saved for '+oeSel.vehicle_name,'success');
-  oeSel=null; oePurpose=null; oeQty=OE_OILS.map(()=>0); oeGid=rhUuid();
+  oeSel=null; oePurpose=null; oeQty=OE_OILS.map(()=>0); oeGid=rhUuid(); document.getElementById('oe_dt').value=deToday();
   oeShowSel(); oeResetRes(); oeBuildOils();
   document.querySelectorAll('#oe_purp button').forEach(x=>x.className='oe-p py-3 px-2 rounded-lg text-sm font-bold border-2 bg-slate-100 text-slate-500 border-transparent');
   document.getElementById('oe_meter').value='0'; document.getElementById('oe_rem').value='';
@@ -3251,7 +3896,8 @@ ROUTES.other_record = async host => {
   host.innerHTML=`
    <div class="max-w-2xl mx-auto space-y-4">
     <div class="${otCard}"><h3 class="text-xs font-semibold text-slate-500 uppercase mb-3">1. Vehicle</h3>
-      <input id="ot_vq" autocomplete="off" placeholder="Search vehicle name or code" class="${otInp}"/>
+      <div class="relative"><input id="ot_vq" autocomplete="off" placeholder="Search vehicle name or code, or scan its QR" class="${otInp} pr-14"/>
+        <button type="button" id="ot_scan" title="Scan vehicle QR code" aria-label="Scan vehicle QR code" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 flex items-center justify-center"><i data-lucide="qr-code" class="w-5 h-5"></i></button></div>
       <div id="ot_vres" class="hidden mt-2 rounded-lg bg-slate-100 max-h-64 overflow-auto"></div><div id="ot_vsel"></div></div>
     <div class="${otCard}"><h3 class="text-xs font-semibold text-slate-500 uppercase mb-3">2. Replacement date</h3>
       <input type="date" id="ot_date" max="${deToday()}" value="${deToday()}" class="${otInp}"/></div>
@@ -3279,13 +3925,67 @@ ROUTES.other_record = async host => {
   $('ot_list').addEventListener('click',e=>{ const b=e.target.closest('button[data-rm]'); if(b){ otRows.splice(+b.dataset.rm,1); otRender(); } });
   $('ot_list').addEventListener('input',e=>{ const t=e.target; if(t.dataset.q!==undefined) otRows[+t.dataset.q].qty=parseFloat(t.value); });
   $('ot_save').addEventListener('click',otSave);
-  otRender();
+  $('ot_scan').addEventListener('click',otOpenScanner);
+  otRender(); lucide.createIcons();
 };
 function otShowVeh(){
   document.getElementById('ot_vsel').innerHTML = otVeh ? `<div class="mt-3 flex items-center gap-3 rounded-xl border-2 border-teal-600 bg-teal-50 px-4 py-3"><div><div class="font-semibold">${escapeHtml(otVeh.vehicle_name)}</div><div class="font-mono text-xs text-slate-500">${escapeHtml(otVeh.code)}</div></div><button type="button" id="ot_vclr" class="ml-auto text-sm px-3 py-1.5 rounded-lg bg-white border border-slate-300">Change</button></div>` : '';
   const c=document.getElementById('ot_vclr'); if(c) c.onclick=()=>{ otVeh=null; otShowVeh(); };
 }
 let otFound=[];
+
+/* ---- QR scanning for Other Item Replacement vehicle selection ---- */
+let otScanner=null, otScanBusy=false;
+function otSelectByCode(raw){
+  const code=String(raw||'').trim().toUpperCase();
+  const v=fqVehicles.find(x=>String(x.code).toUpperCase()===code);
+  if(!v){ toast(`No registered vehicle for "${code}"`,'error'); return false; }
+  otVeh=v; const q=document.getElementById('ot_vq'); if(q) q.value='';
+  const r=document.getElementById('ot_vres'); if(r) r.classList.add('hidden');
+  otShowVeh(); toast('Vehicle selected: '+v.vehicle_name,'success');
+  return true;
+}
+async function otStopScan(){
+  const sc=otScanner; otScanner=null; if(!sc) return;
+  try{ if(sc.isScanning) await sc.stop(); }catch(e){}
+  try{ sc.clear(); }catch(e){}
+}
+function otOpenScanner(){
+  if(typeof Html5Qrcode==='undefined'){ toast('QR scanner could not load. Check your internet connection.','error'); return; }
+  openModal('Scan vehicle QR code', `
+    <div id="ot_reader" class="w-full rounded-xl overflow-hidden bg-slate-900 min-h-[260px]"></div>
+    <p id="ot_scanMsg" class="text-sm text-slate-500 mt-3 text-center">Point the camera at the vehicle's QR code.</p>
+    <div class="text-center mt-3">
+      <label class="inline-flex items-center gap-2 text-sm text-teal-700 cursor-pointer hover:underline">
+        <i data-lucide="image" class="w-4 h-4"></i> Upload a QR image instead
+        <input type="file" id="ot_qrfile" accept="image/*" class="hidden"/></label>
+    </div>`,
+    `<button onclick="closeModal()" class="px-3 py-1.5 text-sm border border-slate-300 rounded-lg">Cancel</button>`);
+  const msg=t=>{ const m=document.getElementById('ot_scanMsg'); if(m) m.textContent=t; };
+  const sc=new Html5Qrcode('ot_reader'); otScanner=sc; otScanBusy=false;
+  const onHit=async text=>{
+    if(otScanBusy) return; otScanBusy=true;
+    if(otSelectByCode(text)){ await otStopScan(); closeModal(); }
+    else setTimeout(()=>{ otScanBusy=false; },1500);
+  };
+  sc.start({facingMode:'environment'},{fps:10,qrbox:{width:230,height:230}},onHit,()=>{})
+    .catch(err=>{
+      const txt=String(err||'');
+      msg(/Permission|NotAllowed/i.test(txt)?'Camera access was blocked. Allow the camera in your browser, or upload a QR image.'
+        :window.isSecureContext?'Could not start the camera. You can upload a QR image instead.'
+        :'The camera needs a secure (https) page. You can upload a QR image instead.');
+    });
+  document.getElementById('ot_qrfile').addEventListener('change',async e=>{
+    const file=e.target.files[0]; if(!file) return;
+    try{
+      if(sc.isScanning) await sc.stop();
+      const text=await sc.scanFile(file,false);
+      if(otSelectByCode(text)){ await otStopScan(); closeModal(); }
+    }catch(err){ msg('No QR code found in that image. Try another one.'); }
+    e.target.value='';
+  });
+  lucide.createIcons();
+}
 async function otSearchItems(){
   const q=rhClean(document.getElementById('ot_iq').value), box=document.getElementById('ot_ires'); if(!box) return;
   if(q.length<2){ box.classList.add('hidden'); return; }
@@ -3332,7 +4032,7 @@ async function otSave(){
 }
 
 /* ---------------- History pages (Filter / Oil / Other) ---------------- */
-const RH_PAGE = 15; let rhS = {kind:'Filter', page:0, total:0, rows:[]};
+const RH_PAGE = 15; let rhS = {kind:'Filter', page:0, total:0, rows:[], readOnly:false};
 function rhQuery(q){
   const k=rhS.kind, g=id=>(document.getElementById(id)||{}).value||'';
   q = q.eq('entry_type', k);
@@ -3345,11 +4045,11 @@ function rhQuery(q){
   return q;
 }
 const rhOrder = q => q.order('replacement_date',{ascending:false}).order('created_at',{ascending:false}).order('id',{ascending:false});
-function rhRoute(host, kind){
-  rhS = {kind, page:0, total:0, rows:[]};
+function rhRoute(host, kind, readOnly=false){
+  rhS = {kind, page:0, total:0, rows:[], readOnly};
   const inp='w-full border border-slate-300 rounded-lg px-3 py-2 text-sm', L=(t,h)=>`<div><label class="block mb-1 text-xs font-medium">${t}</label>${h}</div>`;
   host.innerHTML=`<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-   <h3 class="font-semibold text-navy-900 mb-3">${kind==='Other'?'Other item replacement':kind+' change'} history</h3>
+   <h3 class="font-semibold text-navy-900 mb-3">${readOnly ? (kind==='Other'?'Spare change':kind+' change')+' data' : (kind==='Other'?'Other item replacement':kind+' change')+' history'}</h3>
    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-6 gap-3 mb-4 items-end">
      ${L('Vehicle',`<input id="rh_s" placeholder="Vehicle name or code" class="${inp}"/>`)}
      ${L('Item',`<input id="rh_i" placeholder="Item name or code" class="${inp}"/>`)}
@@ -3363,7 +4063,7 @@ function rhRoute(host, kind){
   ['rh_s','rh_i','rh_c','rh_p','rh_f','rh_t'].forEach(id=>{ const e=document.getElementById(id); if(e) e.addEventListener('input',()=>{ rhS.page=0; clearTimeout(window._rhT); window._rhT=setTimeout(rhLoad,250); }); });
   document.getElementById('rh_r').onclick=rhLoad; document.getElementById('rh_x').onclick=rhExport;
   document.getElementById('rh_pv').onclick=()=>{ rhS.page--; rhLoad(); }; document.getElementById('rh_n').onclick=()=>{ rhS.page++; rhLoad(); };
-  document.getElementById('rh_out').addEventListener('click',e=>{ const b=e.target.closest('button[data-act]'); if(b){ e.stopPropagation(); const r=rhS.rows[b.dataset.i]; return b.dataset.act==='edit'?rhEdit(r):rhDelete(r); } const tr=e.target.closest('[data-i]'); if(tr) rhDetail(rhS.rows[tr.dataset.i]); });
+  document.getElementById('rh_out').addEventListener('click',e=>{ const b=e.target.closest('button[data-act]'); if(b && !rhS.readOnly){ e.stopPropagation(); const r=rhS.rows[b.dataset.i]; return b.dataset.act==='edit'?rhEdit(r):rhDelete(r); } const tr=e.target.closest('[data-i]'); if(tr) rhDetail(rhS.rows[tr.dataset.i]); });
   return rhLoad();
 }
 const rhCols = k => [['Date','replacement_date'],['Vehicle','vehicle_name'],[k==='Oil'?'Oil Item':'Item','item_name'],...(k==='Other'?[['Category','item_category']]:[]),['Item Code','item_code'],['Quantity','quantity'],['UoM','uom'],['Meter Reading','meter_reading'],['Remarks','remarks']];
@@ -3372,11 +4072,12 @@ async function rhLoad(){
   const { data, count, error } = await rhOrder(rhQuery(db.from(RH_TABLE).select('*',{count:'exact'}))).range(rhS.page*RH_PAGE, rhS.page*RH_PAGE+RH_PAGE-1);
   if(error){ out.innerHTML=`<div class="text-red-600">Could not load records: ${escapeHtml(error.message)}</div>`; return; }
   rhS.total=count||0; rhS.rows=data; const cols=rhCols(rhS.kind);
-  out.innerHTML=data.length?`<div class="overflow-x-auto"><table class="data w-full text-sm"><thead><tr>${cols.map(c=>`<th class="text-left px-3 py-2 whitespace-nowrap">${c[0]}</th>`).join('')}<th class="text-left px-3 py-2">Actions</th></tr></thead><tbody>
-   ${data.map((r,i)=>`<tr data-i="${i}" class="cursor-pointer hover:bg-teal-50">${cols.map(c=>`<td class="px-3 py-2 ${c[1]==='remarks'?'':'whitespace-nowrap'}">${escapeHtml(r[c[1]]??'')}</td>`).join('')}<td class="px-3 py-2 whitespace-nowrap"><button data-act="edit" data-i="${i}" class="text-teal-700 hover:underline text-xs">Edit</button><button data-act="del" data-i="${i}" class="text-red-600 hover:underline text-xs ml-3">Delete</button></td></tr>`).join('')}</tbody></table></div>`
+  out.innerHTML=data.length?`<div class="overflow-x-auto"><table class="data w-full text-sm"><thead><tr>${cols.map(c=>`<th class="text-left px-3 py-2 whitespace-nowrap">${c[0]}</th>`).join('')}${rhS.readOnly?'':'<th class="text-left px-3 py-2">Actions</th>'}</tr></thead><tbody>
+   ${data.map((r,i)=>`<tr data-i="${i}" class="cursor-pointer hover:bg-teal-50">${cols.map(c=>`<td class="px-3 py-2 ${c[1]==='remarks'?'':'whitespace-nowrap'}">${escapeHtml(r[c[1]]??'')}</td>`).join('')}${rhS.readOnly?'':`<td class="px-3 py-2 whitespace-nowrap"><button data-act="edit" data-i="${i}" class="p-1.5 rounded-lg text-slate-500 align-middle hover:text-teal-700 hover:bg-teal-50" title="Edit" aria-label="Edit"><i data-lucide="pencil" class="w-4 h-4 pointer-events-none"></i></button><button data-act="del" data-i="${i}" class="p-1.5 rounded-lg text-slate-500 align-middle hover:text-red-600 hover:bg-red-50" title="Delete" aria-label="Delete"><i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i></button></td>`}</tr>`).join('')}</tbody></table></div>`
    :'<div class="py-6 text-center text-slate-400">No records match these filters.</div>';
   document.getElementById('rh_pi').textContent=`${rhS.total?rhS.page*RH_PAGE+1:0}–${Math.min(rhS.total,rhS.page*RH_PAGE+RH_PAGE)} of ${rhS.total}`;
   document.getElementById('rh_pv').disabled=rhS.page===0; document.getElementById('rh_n').disabled=(rhS.page+1)*RH_PAGE>=rhS.total;
+  lucide.createIcons();
 }
 function rhDetail(r){
   if(!r) return; const ex=r.extra_data||{};
@@ -3454,6 +4155,10 @@ async function rhExport(){
 ROUTES.de_history = async host => rhRoute(host,'Filter');
 ROUTES.oil_history = async host => rhRoute(host,'Oil');
 ROUTES.other_history = async host => rhRoute(host,'Other');
+/* Read-only views for Data Entry users: same tables, no Edit / Delete */
+ROUTES.de_data    = async host => rhRoute(host,'Filter',true);
+ROUTES.oil_data   = async host => rhRoute(host,'Oil',true);
+ROUTES.other_data = async host => rhRoute(host,'Other',true);
 
 /* ============================================================
    BULK CSV IMPORT for Filter / Oil / Other replacement history
@@ -3496,7 +4201,7 @@ function biSection(k){
     purpose:['Optional','One of: '+OE_PURPOSES.join(', ')+' (blank = not set)'] })[c];
   return `<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-4" id="bi_box">
    <div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center"><i data-lucide="upload-cloud" class="w-5 h-5"></i></div>
-    <div><h3 class="font-semibold text-navy-900">Bulk Import via CSV</h3><p class="text-xs text-slate-500">Add multiple replacement records at once from a CSV file.</p></div></div>
+    <div><h3 class="font-semibold text-navy-900">Bulk Import via CSV</h3><p class="text-xs text-slate-500">Add multiple ${k.toLowerCase()} replacement records at once from a CSV file.</p></div></div>
    <div class="grid grid-cols-1 md:grid-cols-[1fr_220px] gap-3">
     <div id="bi_drop" class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center cursor-pointer min-h-[110px] flex flex-col items-center justify-center">
       <i data-lucide="upload-cloud" class="w-7 h-7 text-teal-600 mb-1"></i><b id="bi_dt" class="text-sm">Drag &amp; drop CSV file here</b><span id="bi_ds" class="text-xs text-slate-500">or click to browse</span>
@@ -3614,7 +4319,6 @@ async function biCommit(k,res,partial){
   const eb=document.getElementById('bi_err'); if(eb) eb.onclick=()=>biDownload(`${k.toLowerCase()}_import_errors.csv`,biErrFile(k,all));
   toast(`${ok} record(s) imported`,ok?'success':'error');
   biState.busy=false; btn.disabled=false; btn.innerHTML='<i data-lucide="upload-cloud" class="w-4 h-4"></i>Import CSV'; lucide.createIcons();
-  if(ok && typeof rhLoad==='function'){ rhS.page=0; rhLoad(); }
 }
 function biMount(host,k){
   biState={...biState,kind:k,file:null,busy:false};
@@ -3627,9 +4331,35 @@ function biMount(host,k){
   document.getElementById('bi_tpl').onclick=()=>biDownload(BI[k].file,biCsv([biHeader(k)].concat(biExRows(k))));
   document.getElementById('bi_imp').onclick=biRun;
 }
-[['de_history','Filter'],['oil_history','Oil'],['other_history','Other']].forEach(([r,k])=>{
-  const orig=ROUTES[r]; ROUTES[r]=async host=>{ const x=await orig(host); biMount(host,k); return x; };
-});
+/* Dedicated Bulk CSV Import page: pick Oil / Filter / Other, then upload */
+const BI_KINDS = [
+  ['Oil',    'Oil',    'droplets',  'Engine, hydraulic & other oils',        'oil_history'],
+  ['Filter', 'Filter', 'filter',    'Oil, air, fuel & other filters',        'de_history'],
+  ['Other',  'Other',  'settings-2','Any other replaced item (not oil/filter)','other_history']
+];
+ROUTES.bulk_import = async host => {
+  if (!currentUser || currentUser.role !== 'Super Admin'){ host.innerHTML='<div class="text-red-600 text-sm">Only a Super Admin can use Bulk CSV Import.</div>'; return; }
+  biState.itemCache = {};
+  host.innerHTML = `
+   <p class="text-sm text-slate-500 mb-4">Import many replacement records at once from a CSV file. Choose what you are uploading:</p>
+   <div id="bi_kinds" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4"></div>
+   <div id="bi_host"></div>`;
+  const draw = k => {
+    document.getElementById('bi_kinds').innerHTML = BI_KINDS.map(([key,label,icon,desc])=>`
+      <button type="button" data-k="${key}" class="text-left rounded-xl border-2 p-4 flex items-center gap-3 transition ${key===k?'border-teal-600 bg-teal-50':'border-slate-200 bg-white hover:border-teal-300'}">
+        <span class="w-10 h-10 rounded-lg flex items-center justify-center ${key===k?'bg-teal-600 text-white':'bg-slate-100 text-slate-600'}"><i data-lucide="${icon}" class="w-5 h-5"></i></span>
+        <span><b class="block text-sm text-navy-900">${label} Replacement</b><span class="text-xs text-slate-500">${desc}</span></span>
+      </button>`).join('');
+    const h = document.getElementById('bi_host'); h.innerHTML = '';
+    biMount(h, k);
+    const hist = BI_KINDS.find(x=>x[0]===k)[4];
+    h.insertAdjacentHTML('beforeend', `<div class="text-sm"><a href="#" id="bi_hist" class="text-teal-700 hover:underline">View ${k.toLowerCase()} replacement history →</a></div>`);
+    document.getElementById('bi_hist').onclick = e=>{ e.preventDefault(); route(hist); };
+    lucide.createIcons();
+  };
+  document.getElementById('bi_kinds').onclick = e=>{ const b=e.target.closest('button[data-k]'); if(b && b.dataset.k!==biState.kind) draw(b.dataset.k); };
+  draw('Oil');
+};
 
 
 /* ============================================================
@@ -3789,32 +4519,87 @@ async function miStdSave(tr){
 /* vehicle-specific overrides */
 async function miVehTab(b){
   await fqLoadVehicles(); miVeh=null;
-  b.innerHTML=`<div class="${miCard} space-y-3"><div><label class="block mb-1 text-sm font-medium">Vehicle</label><input id="mv_q" autocomplete="off" placeholder="Search vehicle name or code" class="${miInp} w-full"/>
-    <div id="mv_res" class="hidden mt-2 rounded-lg bg-slate-100 max-h-60 overflow-auto"></div><div id="mv_sel"></div></div><div id="mv_work"></div></div>`;
-  document.getElementById('mv_q').oninput=()=>{ const q=document.getElementById('mv_q').value.trim(), box=document.getElementById('mv_res'); if(!q){ box.classList.add('hidden'); return; }
-    const r=fqVehicles.filter(v=>deMatch(v,q)).slice(0,30); box.classList.remove('hidden');
-    box.innerHTML=r.length?r.map(v=>`<button type="button" data-id="${v.id}" class="flex justify-between w-full px-4 py-3 text-sm text-left border-b border-slate-200 bg-white hover:bg-teal-50"><span>${escapeHtml(v.vehicle_name)}</span><span class="font-mono text-xs text-slate-500">${escapeHtml(v.code)}</span></button>`).join(''):'<div class="p-4 text-sm text-slate-500">No matching vehicle</div>'; };
-  document.getElementById('mv_res').onclick=e=>{ const x=e.target.closest('button[data-id]'); if(!x) return; miVeh=fqVehicles.find(v=>v.id==x.dataset.id); document.getElementById('mv_q').value=''; document.getElementById('mv_res').classList.add('hidden');
-    document.getElementById('mv_sel').innerHTML=`<div class="mt-3 rounded-xl border-2 border-teal-600 bg-teal-50 px-4 py-3 font-semibold">${escapeHtml(miVeh.vehicle_name)} <span class="font-mono text-xs text-slate-500">${escapeHtml(miVeh.code)}</span></div>`; miVehWork(); };
+  b.innerHTML=`<div id="mv_listview" class="${miCard} space-y-3">
+    <div class="flex flex-wrap items-center gap-3"><input id="mv_q" autocomplete="off" placeholder="Search vehicle name or code" class="${miInp} flex-1 min-w-[14rem]"/>
+      <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="mv_only" class="w-4 h-4 accent-teal-600"/> Only vehicles with overrides</label><span id="mv_cnt" class="text-xs text-slate-500"></span></div>
+    <div id="mv_all" class="text-sm text-slate-400">Loading vehicles…</div></div>
+   <div id="mv_detail" class="${miCard} space-y-3 hidden"><div class="flex flex-wrap items-center gap-3"><button id="mv_back" class="border border-slate-300 hover:bg-slate-50 rounded-lg px-3 py-1.5 text-sm">&larr; All vehicles</button><div id="mv_sel" class="font-semibold"></div></div><div id="mv_work"></div></div>`;
+  let counts=new Map();
+  const loadCounts=async()=>{ counts=new Map(); for(let from=0;;from+=1000){ const { data } = await db.from('vehicle_interval_overrides').select('vehicle_code').range(from,from+999); (data||[]).forEach(r=>counts.set(r.vehicle_code,(counts.get(r.vehicle_code)||0)+1)); if(!data||data.length<1000) break; } };
+  const draw=()=>{
+    const q=document.getElementById('mv_q').value.trim(), only=document.getElementById('mv_only').checked;
+    const list=fqVehicles.filter(v=>(!q||deMatch(v,q)) && (!only||counts.get(v.code))).slice().sort((x,y)=>String(x.vehicle_name).localeCompare(String(y.vehicle_name),undefined,{numeric:true}));
+    document.getElementById('mv_cnt').textContent=`${list.length} of ${fqVehicles.length} vehicles`;
+    document.getElementById('mv_all').innerHTML=list.length?`<div class="overflow-auto max-h-[65vh] border border-slate-200 rounded-lg"><table class="data w-full text-sm"><thead class="sticky top-0 bg-slate-50"><tr><th class="text-left px-3 py-2">#</th><th class="text-left px-3 py-2">Vehicle</th><th class="text-left px-3 py-2">Code</th><th class="text-left px-3 py-2">Overrides</th><th class="px-3 py-2"></th></tr></thead><tbody>
+      ${list.map((v,i)=>{ const c=counts.get(v.code)||0; return `<tr data-id="${v.id}" class="cursor-pointer hover:bg-teal-50"><td class="px-3 py-2 text-slate-400">${i+1}</td><td class="px-3 py-2 font-medium">${escapeHtml(v.vehicle_name)}</td><td class="px-3 py-2 font-mono text-xs text-slate-500">${escapeHtml(v.code)}</td>
+        <td class="px-3 py-2">${c?`<span class="px-2 py-0.5 rounded-full text-xs font-bold bg-teal-100 text-teal-700">${c}</span>`:'<span class="text-slate-300">—</span>'}</td><td class="px-3 py-2 text-right whitespace-nowrap"><span class="text-teal-700 text-xs font-medium">Manage →</span></td></tr>`; }).join('')}</tbody></table></div>`
+      :'<div class="py-6 text-center text-slate-400">No matching vehicle.</div>';
+  };
+  const showList=async()=>{ miVeh=null; document.getElementById('mv_detail').classList.add('hidden'); document.getElementById('mv_listview').classList.remove('hidden'); await loadCounts(); draw(); };
+  document.getElementById('mv_q').oninput=draw; document.getElementById('mv_only').onchange=draw;
+  document.getElementById('mv_all').onclick=e=>{ const r=e.target.closest('tr[data-id]'); if(!r) return; miVeh=fqVehicles.find(v=>v.id==r.dataset.id); if(!miVeh) return;
+    document.getElementById('mv_listview').classList.add('hidden'); document.getElementById('mv_detail').classList.remove('hidden');
+    document.getElementById('mv_sel').innerHTML=`${escapeHtml(miVeh.vehicle_name)} <span class="font-mono text-xs text-slate-500">${escapeHtml(miVeh.code)}</span>`; miVehWork(); };
+  document.getElementById('mv_back').onclick=showList;
+  await loadCounts(); draw();
 }
 async function miVehWork(){
   const w=document.getElementById('mv_work');
-  w.innerHTML=`<div><label class="block mb-1 text-sm font-medium">Add / edit override — search active item</label><input id="mv_iq" autocomplete="off" placeholder="Item name, code or category" class="${miInp} w-full"/><div id="mv_ires" class="hidden mt-2 rounded-lg bg-slate-100 max-h-60 overflow-auto"></div><div id="mv_edit" class="mt-3"></div></div>
-   <div><h4 class="text-sm font-semibold text-slate-600 mb-2">Existing overrides for this vehicle</h4><div id="mv_list"></div></div>`;
+  w.innerHTML=`<div class="flex flex-wrap items-center gap-3"><h4 class="text-sm font-semibold text-slate-600">Scheduled items &amp; intervals <span class="font-normal text-slate-400">— defaults come from Standard Intervals; fill the override columns to change them for this vehicle</span></h4><input id="mv_f" placeholder="Filter items" class="${miInp} w-56 ml-auto"/></div>
+   <div id="mv_list" class="text-sm text-slate-400">Loading scheduled items…</div>
+   <details class="mt-2 border border-dashed border-slate-300 rounded-lg p-3"><summary class="cursor-pointer text-sm font-semibold text-teal-700">Add an override for an item that has no standard interval</summary>
+    <div class="mt-3"><input id="mv_iq" autocomplete="off" placeholder="Item name, code or category" class="${miInp} w-full"/><div id="mv_ires" class="hidden mt-2 rounded-lg bg-slate-100 max-h-60 overflow-auto"></div><div id="mv_edit" class="mt-3"></div></div></details>`;
   let T, found=[];
   document.getElementById('mv_iq').oninput=()=>{ clearTimeout(T); T=setTimeout(async()=>{ const q=rhClean(document.getElementById('mv_iq').value), box=document.getElementById('mv_ires'); if(q.length<2){ box.classList.add('hidden'); return; }
     const { data } = await db.from('items').select('id,item_name,item_code,item_category,unit,status').or(`item_name.ilike.%${q}%,item_code.ilike.%${q}%,item_category.ilike.%${q}%`).order('item_name').limit(30);
     found=(data||[]).filter(i=>i.status!=='Inactive').slice(0,15); box.classList.remove('hidden');
     box.innerHTML=found.length?found.map((i,k)=>`<button type="button" data-k="${k}" class="block w-full px-4 py-2.5 text-left border-b border-slate-200 bg-white hover:bg-teal-50"><div class="text-sm font-medium">${escapeHtml(i.item_name)}</div><div class="text-xs text-slate-500">${escapeHtml(i.item_code||'')} · ${escapeHtml(i.item_category||'—')}</div></button>`).join(''):'<div class="p-4 text-sm text-slate-500">No active items found</div>'; },250); };
   document.getElementById('mv_ires').onclick=e=>{ const x=e.target.closest('button[data-k]'); if(x){ document.getElementById('mv_ires').classList.add('hidden'); document.getElementById('mv_iq').value=''; miVehEdit(found[+x.dataset.k]); } };
-  document.getElementById('mv_list').onclick=async e=>{ const x=e.target.closest('button[data-e]'); if(x){ const { data } = await db.from('items').select('id,item_name,item_code,item_category,unit,status').eq('id',x.dataset.e).maybeSingle(); if(data) miVehEdit(data); } };
+  const L=document.getElementById('mv_list');
+  document.getElementById('mv_f').oninput=()=>miVehDraw();
+  L.addEventListener('change',e=>{ const t=e.target; if(t.dataset.k==='type'){ t.closest('tr').querySelector('[data-k=val]').disabled=t.value==='No Interval'; } });
+  L.addEventListener('click',e=>{ const sv=e.target.closest('button[data-save]'), rs=e.target.closest('button[data-reset]'); if(sv) miVehSaveRow(sv.closest('tr')); else if(rs) miVehResetRow(rs.closest('tr')); });
   await miVehList();
 }
+let miVL=[];
 async function miVehList(){
   const el=document.getElementById('mv_list'); if(!el||!miVeh) return;
-  const { data } = await db.from('vehicle_interval_overrides').select('*').eq('vehicle_code',miVeh.code); const ov=data||[];
-  const items = ov.length ? await miInChunks('items','id',ov.map(o=>o.item_id),'id,item_name,item_code') : []; const im=new Map(items.map(i=>[i.id,i]));
-  el.innerHTML=ov.length?`<table class="data w-full text-sm"><thead><tr><th class="text-left px-2 py-2">Item</th><th class="text-left px-2 py-2">Override</th><th></th></tr></thead><tbody>${ov.map(o=>{ const i=im.get(o.item_id)||{}; return `<tr><td class="px-2 py-2">${escapeHtml(i.item_name||'')}<div class="font-mono text-[11px] text-slate-400">${escapeHtml(i.item_code||'')}</div></td><td class="px-2 py-2">${o.interval_type==='No Interval'?'No Interval':o.interval_value+' '+MI_UNIT[o.interval_type]}</td><td class="px-2 py-2"><button data-e="${o.item_id}" class="text-teal-700 text-xs">Edit</button></td></tr>`; }).join('')}</tbody></table>`:'<div class="text-sm text-slate-400">No overrides.</div>';
+  try{
+    let sets=[]; for(let from=0;;from+=1000){ const { data, error } = await db.from('maintenance_interval_settings').select('*').eq('enabled',true).range(from,from+999); if(error) throw error; sets=sets.concat(data||[]); if(!data||data.length<1000) break; }
+    sets=sets.filter(x=>x.interval_type!=='No Interval'); const sm=new Map(sets.map(x=>[x.item_id,x]));
+    const { data:ovs, error:oe } = await db.from('vehicle_interval_overrides').select('*').eq('vehicle_code',miVeh.code); if(oe) throw oe; const om=new Map((ovs||[]).map(o=>[o.item_id,o]));
+    const ids=[...new Set([...sm.keys(),...om.keys()])]; const items=ids.length?await miInChunks('items','id',ids,'id,item_name,item_code,item_category,unit,status'):[]; const im=new Map(items.map(i=>[i.id,i]));
+    miVL=ids.map(id=>({it:im.get(id),std:sm.get(id)||null,ov:om.get(id)||null})).filter(r=>r.it && (r.it.status!=='Inactive'||r.ov))
+      .sort((a,b)=>String(a.it.item_category||'').localeCompare(String(b.it.item_category||''))||String(a.it.item_name).localeCompare(String(b.it.item_name),undefined,{numeric:true}));
+  }catch(err){ el.innerHTML=`<div class="text-red-600">${escapeHtml(err.message)}</div>`; return; }
+  miVehDraw();
+}
+function miVehDraw(){
+  const el=document.getElementById('mv_list'); if(!el) return; const f=((document.getElementById('mv_f')||{}).value||'').trim().toLowerCase();
+  const rows=miVL.filter(r=>!f||r.it.item_name.toLowerCase().includes(f)||String(r.it.item_code||'').toLowerCase().includes(f)||String(r.it.item_category||'').toLowerCase().includes(f));
+  if(!rows.length){ el.className='py-6 text-center text-slate-400 text-sm'; el.textContent=miVL.length?'No items match the filter.':'No items have a standard interval yet. Set them in the Standard Intervals tab, or add an override below.'; return; }
+  el.className='text-sm';
+  el.innerHTML=`<div class="overflow-auto max-h-[60vh] border border-slate-200 rounded-lg"><table class="data w-full text-sm"><thead class="sticky top-0 bg-slate-50"><tr><th class="text-left px-3 py-2">Item</th><th class="text-left px-3 py-2 whitespace-nowrap">Default interval</th><th class="text-left px-3 py-2">Override for this vehicle</th><th class="text-left px-3 py-2">Status</th><th class="px-3 py-2"></th></tr></thead><tbody>
+   ${rows.map(r=>{ const {it,std,ov}=r, dv=std?`${std.interval_value} ${MI_UNIT[std.interval_type]}`:'—', dq=std?(std.required_qty??1):'';
+     const ty=ov?.interval_type||std?.interval_type||'Days', st=ov?(ov.interval_type==='No Interval'?['Not scheduled for this vehicle','bg-purple-100 text-purple-700']:['Overridden','bg-teal-100 text-teal-700']):['Default','bg-slate-100 text-slate-600'];
+     return `<tr data-id="${it.id}" class="align-top"><td class="px-3 py-2"><div class="font-medium">${escapeHtml(it.item_name)}</div><div class="font-mono text-[11px] text-slate-400">${escapeHtml(it.item_code||'')} · ${escapeHtml(it.item_category||'—')}</div></td>
+      <td class="px-3 py-2 whitespace-nowrap"><div class="font-semibold">${escapeHtml(dv)}</div>${std?`<div class="text-[11px] text-slate-400">qty ${dq} ${escapeHtml(it.unit||'')}</div>`:'<div class="text-[11px] text-slate-400">no standard interval</div>'}</td>
+      <td class="px-3 py-2"><div class="flex flex-wrap gap-1.5"><input type="number" data-k="val" min="0" step="any" value="${ov?.interval_value??''}" placeholder="${std?std.interval_value:'Value'}" ${ty==='No Interval'?'disabled':''} class="${miInp} w-24"/><select data-k="type" class="${miInp}">${miTypeOpts(ty)}</select><input type="number" data-k="qty" min="0" step="any" value="${ov?.required_qty??''}" placeholder="${std?dq:'Qty'}" class="${miInp} w-20" title="Required quantity"/></div></td>
+      <td class="px-3 py-2"><span class="px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${st[1]}">${st[0]}</span></td>
+      <td class="px-3 py-2 whitespace-nowrap"><button data-save class="px-3 py-1.5 text-xs bg-teal-600 hover:bg-teal-700 text-white rounded-lg">Save override</button>${ov?'<button data-reset class="ml-2 px-3 py-1.5 text-xs border border-red-300 text-red-600 rounded-lg">Reset to default</button>':''}</td></tr>`; }).join('')}</tbody></table></div>`;
+}
+async function miVehSaveRow(tr){
+  const g=k=>tr.querySelector(`[data-k=${k}]`), type=g('type').value, val=parseFloat(g('val').value), qty=parseFloat(g('qty').value), r=miVL.find(x=>x.it.id==tr.dataset.id); if(!r) return;
+  if(type!=='No Interval' && !(val>0)){ toast('Enter an override value greater than zero.','error'); return; }
+  const btn=tr.querySelector('[data-save]'); btn.disabled=true;
+  const { error } = await db.from('vehicle_interval_overrides').upsert({ vehicle_code:miVeh.code, vehicle_name:miVeh.vehicle_name, item_id:r.it.id, interval_type:type, interval_value:type==='No Interval'?null:val, required_qty:qty>0?qty:null, updated_by:miUser(), updated_at:new Date().toISOString() },{onConflict:'vehicle_code,item_id'});
+  if(error){ btn.disabled=false; toast('Not saved: '+error.message,'error'); return; }
+  toast('Override saved','success'); await miVehList();
+}
+async function miVehResetRow(tr){
+  const r=miVL.find(x=>x.it.id==tr.dataset.id); if(!r) return;
+  const { error } = await db.from('vehicle_interval_overrides').delete().eq('vehicle_code',miVeh.code).eq('item_id',r.it.id);
+  if(error){ toast(error.message,'error'); return; } toast('Reset to default','success'); await miVehList();
 }
 async function miVehEdit(it){
   const { data:std } = await db.from('maintenance_interval_settings').select('*').eq('item_id',it.id).maybeSingle();
@@ -3874,13 +4659,34 @@ let calM=new Date(), calSel=miYmd(new Date()), calData=null, calExcl=[], calPend
 const calStatus = k => { const t=miYmd(new Date()); return k<t?'overdue':(k===t?'today':'upcoming'); };
 const CAL_CLS = {overdue:'bg-red-100 text-red-700',today:'bg-amber-100 text-amber-700',upcoming:'bg-blue-100 text-blue-700'};
 const CAL_LBL = {overdue:'Overdue',today:'Due Today',upcoming:'Upcoming'};
+/* due-status helpers: red = overdue, orange = due today / within 7 days, green = on time */
+const calDiff = k => Math.round((miParse(k) - miParse(miYmd(new Date()))) / 86400000);
+function calDueInfo(k, short){
+  const d=calDiff(k), pl=n=>n===1?'day':'days';
+  if(d<0){ const n=-d; return {cls:'bg-red-50 text-red-700 border-red-200', txt: short?`${n} ${pl(n)}`:`Overdue by ${n} ${pl(n)}`}; }
+  if(d===0) return {cls:'bg-orange-50 text-orange-700 border-orange-200', txt:'Due today'};
+  if(d<=7) return {cls:'bg-orange-50 text-orange-700 border-orange-200', txt:`Due in ${d} ${pl(d)}`};
+  return {cls:'bg-green-50 text-green-700 border-green-200', txt:`On time · ${d} days left`};
+}
+const calChip = (k, short) => { const i=calDueInfo(k,short); return `<span class="inline-block whitespace-nowrap text-[11px] font-semibold px-2 py-0.5 rounded-md border ${i.cls}">${i.txt}</span>`; };
+const calEvery = x => { const m=/\+\s*(\d+)\s*days$/.exec(x.note||''); return m?`every ${m[1]} days`:''; };   // interval shown for date-based items
+const calUsageNote = x => (x.note && !/^Last /.test(x.note)) ? `<div class="text-[11px] text-slate-400">${escapeHtml(x.note)}</div>` : '';   // hours / km / diesel basis
+const calPendTag = x => calPend.has(x.vcode+'|'+x.item_id) ? `<span class="ml-1 align-middle text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded px-1" title="Pending — ${escapeHtml(calPend.get(x.vcode+'|'+x.item_id)||'')}">Pending</span>` : '';
+function calVehCard(vc, its, st){
+  return `<div class="flex items-center gap-2.5 rounded-lg border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-2 shadow-sm">
+    <div class="w-10 shrink-0">${ovIcon(ovKind(its[0].vname,vc))}</div>
+    <div class="min-w-0"><div class="text-base font-bold text-navy-900 leading-tight break-words">${escapeHtml(its[0].vname)}</div>
+      <div class="font-mono text-[11px] text-slate-500">${escapeHtml(vc)}</div>
+      <span class="mt-1 inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded ${CAL_CLS[st]}">${CAL_LBL[st]} · ${its.length} item${its.length>1?'s':''}</span></div></div>`;
+}
+const calItemCell = x => `<div class="font-medium text-slate-800 leading-tight">${escapeHtml(x.iname)}${calPendTag(x)}</div><div class="text-[11px] text-slate-400">${escapeHtml(x.cat||'')}${x.icode?' · <span class="font-mono">'+escapeHtml(x.icode)+'</span>':''}${calEvery(x)?' · '+calEvery(x):''}</div>${calUsageNote(x)}`;
 ROUTES.maint_calendar = async host => {
   calM=new Date(); calM.setDate(1); calSel=miYmd(new Date());
-  host.innerHTML=`<div class="space-y-4"><div class="${miCard}"><div class="flex flex-wrap items-center gap-2 mb-3">
-    <button id="cl_pv" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm">&larr;</button><div id="cl_title" class="font-semibold text-navy-900 min-w-[9rem] text-center"></div><button id="cl_nx" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm">&rarr;</button>
-    <button id="cl_td" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm">Today</button><input type="month" id="cl_mo" class="${miInp}"/><button id="cl_rf" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm ml-auto">Refresh</button></div>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3"><input id="cl_v" placeholder="Search vehicle" class="${miInp} w-full"/><input id="cl_i" placeholder="Filter by item" class="${miInp} w-full"/><select id="cl_c" class="${miInp} w-full"><option value="">All categories</option></select></div>
-    <div id="cl_sum" class="flex flex-wrap gap-2 mt-3 text-xs"></div></div>
+  host.innerHTML=`<div class="space-y-3"><div class="${miCard} !p-3"><div class="flex flex-wrap items-center gap-2 mb-2">
+    <button id="cl_pv" class="border border-slate-300 hover:bg-slate-50 rounded-lg px-2.5 py-1 text-xs font-medium">&larr;</button><div id="cl_title" class="font-semibold text-navy-900 min-w-[8rem] text-center text-sm"></div><button id="cl_nx" class="border border-slate-300 hover:bg-slate-50 rounded-lg px-2.5 py-1 text-xs font-medium">&rarr;</button>
+    <button id="cl_td" class="border border-slate-300 hover:bg-slate-50 rounded-lg px-2.5 py-1 text-xs font-medium">Today</button><input type="month" id="cl_mo" class="${miInp} !py-1 !text-xs"/><button id="cl_rf" class="border border-slate-300 hover:bg-slate-50 rounded-lg px-2.5 py-1 text-xs font-medium ml-auto">Refresh</button></div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2"><input id="cl_v" placeholder="Search vehicle" class="${miInp} !py-1.5 !text-[13px] w-full"/><input id="cl_i" placeholder="Filter by item" class="${miInp} !py-1.5 !text-[13px] w-full"/><select id="cl_c" class="${miInp} !py-1.5 !text-[13px] w-full"><option value="">All categories</option></select></div>
+    <div id="cl_sum" class="flex flex-wrap gap-1.5 mt-2 text-[11px]"></div></div>
    <div id="cl_body" class="text-slate-400 text-sm">Calculating schedule…</div></div>`;
   const $=id=>document.getElementById(id);
   $('cl_pv').onclick=()=>{ calM.setMonth(calM.getMonth()-1); calRender(); }; $('cl_nx').onclick=()=>{ calM.setMonth(calM.getMonth()+1); calRender(); };
@@ -3933,7 +4739,7 @@ async function calCompute(){
     else if(e.type==='Diesel Litres'){ const lt=dz.filter(r=>String(r.code).toUpperCase()===String(b.vehicle_code).toUpperCase() && r.entry_datetime>=new Date(last+'T00:00:00').toISOString()).reduce((a,r)=>a+(+r.quantity||0),0);
       if(lt>=e.val){ key=today; note=`${Math.round(lt)} L used since ${miFmt(last)} (interval ${e.val} L)`; } else continue; }
     if(!key) continue; const v=vm.get(b.vehicle_code);
-    out.push({key, vcode:b.vehicle_code, vname:(v&&v.vehicle_name)||b.vehicle_name, item_id:b.item_id, iname:b.item_name, icode:b.item_code, cat:b.cat, qty:e.qty, uom:b.uom||im.get(b.item_id)?.unit||'', note, meter:cur.get(b.vehicle_code)||'', gid:rhUuid(), item:{id:b.item_id,item_name:b.item_name,item_code:b.item_code,item_category:b.item_category||b.cat,unit:b.uom||im.get(b.item_id)?.unit||null}});
+    out.push({key, last, vcode:b.vehicle_code, vname:(v&&v.vehicle_name)||b.vehicle_name, item_id:b.item_id, iname:b.item_name, icode:b.item_code, cat:b.cat, qty:e.qty, uom:b.uom||im.get(b.item_id)?.unit||'', note, meter:cur.get(b.vehicle_code)||'', gid:rhUuid(), item:{id:b.item_id,item_name:b.item_name,item_code:b.item_code,item_category:b.item_category||b.cat,unit:b.uom||im.get(b.item_id)?.unit||null}});
   }
   calData=out;
   const { data:pd } = await db.from('maintenance_checklist_status').select('vehicle_code,item_id,reason'); calPend=new Map((pd||[]).map(p=>[p.vehicle_code+'|'+p.item_id,p.reason]));
@@ -3954,31 +4760,239 @@ function calRender(){
   calFixSel(); const y=calM.getFullYear(), mo=calM.getMonth(), first=new Date(y,mo,1), n=new Date(y,mo+1,0).getDate(), pad=(first.getDay()+6)%7;
   document.getElementById('cl_title').textContent=calM.toLocaleDateString('en-GB',{month:'long',year:'numeric'}); document.getElementById('cl_mo').value=`${y}-${String(mo+1).padStart(2,'0')}`;
   const allKeys=[...by.keys()], cnt=s=>allKeys.filter(k=>calStatus(k)===s).reduce((a,k)=>a+by.get(k).size,0);
-  document.getElementById('cl_sum').innerHTML=Object.keys(CAL_LBL).map(s=>`<span class="px-2.5 py-1 rounded-full ${CAL_CLS[s]}">${CAL_LBL[s]}: ${cnt(s)} vehicle-days</span>`).join('')+`<button id="cl_ex" class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">Excluded by diesel filter: ${calExcl.length}</button>`;
+  document.getElementById('cl_sum').innerHTML=Object.keys(CAL_LBL).map(s=>`<span class="px-2 py-0.5 rounded-full ${CAL_CLS[s]}">${CAL_LBL[s]}: ${cnt(s)} vehicle-days</span>`).join('')+`<button id="cl_ex" class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">Excluded by diesel filter: ${calExcl.length}</button>`;
   document.getElementById('cl_ex').onclick=calShowExcluded;
   let cells=''; for(let i=0;i<pad;i++) cells+='<div></div>';
   for(let d=1; d<=n; d++){ const k=miYmd(new Date(y,mo,d)), m=by.get(k), st=m?calStatus(k):null;
-    cells+=`<button data-d="${k}" class="min-h-[42px] rounded-md border p-1 text-left ${k===calSel?'border-teal-600 ring-2 ring-teal-600':'border-slate-200'} ${k===miYmd(new Date())?'bg-teal-50':'bg-white'} hover:bg-slate-50"><div class="text-[11px] font-semibold text-slate-600 leading-none">${d}</div>${m?`<div class="mt-0.5 text-[10px] font-bold px-1 rounded-full inline-block ${CAL_CLS[st]}">${m.size}</div>`:''}</button>`; }
+    cells+=`<button data-d="${k}" class="min-h-[36px] rounded-md border p-1 text-left ${k===calSel?'border-teal-600 ring-2 ring-teal-600':'border-slate-200'} ${k===miYmd(new Date())?'bg-teal-50':'bg-white'} hover:bg-slate-50"><div class="text-[11px] font-semibold text-slate-600 leading-none">${d}</div>${m?`<div class="mt-0.5 text-[10px] font-bold px-1 rounded-full inline-block ${CAL_CLS[st]}">${m.size}</div>`:''}</button>`; }
   const sel=by.get(calSel), st=sel?calStatus(calSel):null;
-  const CARD={overdue:'bg-red-50 border-red-400 hover:bg-red-100',today:'bg-amber-50 border-amber-400 hover:bg-amber-100',upcoming:'bg-blue-50 border-blue-400 hover:bg-blue-100'}, BAR={overdue:'bg-red-500',today:'bg-amber-500',upcoming:'bg-blue-500'};
-  const side=sel?[...sel].sort((a,b)=>a[1][0].vname.localeCompare(b[1][0].vname,undefined,{numeric:true})).map(([vc,its])=>`<button data-v="${escapeHtml(vc)}" class="relative w-full text-left rounded-xl border-2 ${CARD[st]} shadow-sm pl-5 pr-4 py-4 transition overflow-hidden"><span class="absolute left-0 top-0 bottom-0 w-2 ${BAR[st]}"></span>
-    <div class="flex items-start justify-between gap-2"><div><div class="font-bold text-base text-navy-900">${escapeHtml(its[0].vname)}</div><div class="font-mono text-xs text-slate-500">${escapeHtml(vc)}</div></div><span class="shrink-0 text-xs font-bold px-2.5 py-1 rounded-full text-white ${BAR[st]}">${its.length} item${its.length>1?'s':''} due</span></div>
-    <div class="flex flex-wrap gap-1.5 mt-3">${its.slice(0,4).map(x=>`<span class="text-[11px] px-2 py-0.5 rounded-full bg-white/80 border border-slate-200 text-slate-700">${escapeHtml(x.iname)}</span>`).join('')}${its.length>4?`<span class="text-[11px] px-2 py-0.5 rounded-full bg-white/80 border border-slate-200 text-slate-500">+${its.length-4} more</span>`:''}</div></button>`).join(''):'<div class="text-sm text-slate-400 py-4 col-span-full">No vehicles due on this date.</div>';
-  body.innerHTML=`<div class="grid grid-cols-1 lg:grid-cols-5 gap-4"><div class="${miCard} lg:col-span-2 self-start !p-3"><div class="grid grid-cols-7 gap-1 text-[10px] font-semibold text-slate-400 mb-1 text-center">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(x=>`<div>${x}</div>`).join('')}</div><div class="grid grid-cols-7 gap-1" id="cl_grid">${cells}</div>
-    <p class="text-[11px] text-slate-400 mt-3">Hour/km/diesel-based items appear on today (when already due) — no calendar date is estimated without usage data. Items with no previous replacement record are not scheduled.</p></div>
-    <div class="${miCard} lg:col-span-3"><div class="flex items-center justify-between mb-4"><div><h3 class="text-lg font-bold text-navy-900">${miFmt(calSel)}</h3><div class="text-sm text-slate-500">${sel?sel.size:0} vehicle${sel&&sel.size!==1?'s':''} due</div></div>${st?`<span class="px-3 py-1 rounded-full text-sm font-semibold ${CAL_CLS[st]}">${CAL_LBL[st]}</span>`:''}</div><div id="cl_side" class="grid grid-cols-1 xl:grid-cols-2 gap-3">${side}</div></div></div>`;
+  const groups=sel?[...sel].sort((a,b)=>a[1][0].vname.localeCompare(b[1][0].vname,undefined,{numeric:true})).map(([vc,its])=>[vc,its.slice().sort((a,b)=>a.iname.localeCompare(b.iname))]):[];
+  const nItems=groups.reduce((a,g)=>a+g[1].length,0);
+  const th='sticky top-0 z-10 bg-blue-50 text-left text-[11px] uppercase tracking-wide font-semibold text-slate-600 px-3 py-2 border-b border-blue-100 whitespace-nowrap';
+  const table=groups.length?`<div class="hidden md:block overflow-auto max-h-[72vh] rounded-lg border border-slate-200 scroll-thin"><table class="w-full text-[13px] border-collapse">
+      <thead><tr><th class="${th} w-[250px]">Vehicle</th><th class="${th}">Item Name</th><th class="${th}">Last Change Date</th><th class="${th}">Next Due Date</th><th class="${th}">Overdue By</th></tr></thead>
+      ${groups.map(([vc,its])=>`<tbody class="border-t-2 border-blue-100 first:border-t-0">${its.map((x,i)=>`<tr data-v="${escapeHtml(vc)}" class="cursor-pointer hover:bg-blue-50/50 ${i?'border-t border-slate-100':''}">
+        ${i===0?`<td rowspan="${its.length}" class="align-top p-2 bg-slate-50/70 w-[250px]">${calVehCard(vc,its,st)}</td>`:''}
+        <td class="px-3 py-1.5 align-middle">${calItemCell(x)}</td>
+        <td class="px-3 py-1.5 whitespace-nowrap tabular-nums text-slate-700">${x.last?miFmt(x.last):'—'}</td>
+        <td class="px-3 py-1.5 whitespace-nowrap tabular-nums font-semibold text-slate-800">${miFmt(x.key)}</td>
+        <td class="px-3 py-1.5 whitespace-nowrap">${calChip(x.key)}</td></tr>`).join('')}</tbody>`).join('')}</table></div>
+    <div class="md:hidden space-y-2">${groups.map(([vc,its])=>`<div data-v="${escapeHtml(vc)}" class="rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden"><div class="p-2 bg-slate-50/70 border-b border-blue-100">${calVehCard(vc,its,st)}</div>
+      <div class="divide-y divide-slate-100">${its.map(x=>`<div class="px-3 py-2"><div class="flex items-start justify-between gap-2"><div class="min-w-0 text-[13px]">${calItemCell(x)}</div>${calChip(x.key)}</div>
+        <div class="mt-1 flex gap-4 text-[11px] text-slate-500"><span>Last change: <b class="text-slate-700">${x.last?miFmt(x.last):'—'}</b></span><span>Next due: <b class="text-slate-700">${miFmt(x.key)}</b></span></div></div>`).join('')}</div></div>`).join('')}</div>`
+    :'<div class="text-sm text-slate-400 py-6 text-center">No vehicles due on this date.</div>';
+  body.innerHTML=`<div class="grid grid-cols-1 lg:grid-cols-12 gap-3"><div class="${miCard} lg:col-span-4 self-start !p-3"><div class="grid grid-cols-7 gap-1 text-[10px] font-semibold text-slate-400 mb-1 text-center">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(x=>`<div>${x}</div>`).join('')}</div><div class="grid grid-cols-7 gap-1" id="cl_grid">${cells}</div>
+    <p class="text-[11px] text-slate-400 mt-2">Hour/km/diesel-based items appear on today (when already due) — no calendar date is estimated without usage data. Items with no previous replacement record are not scheduled.</p></div>
+    <div class="${miCard} lg:col-span-8 !p-3"><div class="flex items-center justify-between mb-2"><div><h3 class="text-base font-bold text-navy-900">${miFmt(calSel)}</h3><div class="text-xs text-slate-500">${sel?sel.size:0} vehicle${sel&&sel.size!==1?'s':''} · ${nItems} item${nItems!==1?'s':''} due</div></div>${st?`<span class="px-2 py-0.5 rounded-full text-xs font-semibold ${CAL_CLS[st]}">${CAL_LBL[st]}</span>`:''}</div><div id="cl_side">${table}</div></div></div>`;
   document.getElementById('cl_grid').onclick=e=>{ const b=e.target.closest('button[data-d]'); if(b){ calSel=b.dataset.d; calRender(); } };
-  document.getElementById('cl_side').onclick=e=>{ const b=e.target.closest('button[data-v]'); if(b) calOpenChecklist(b.dataset.v, calSel); };
+  document.getElementById('cl_side').onclick=e=>{ const b=e.target.closest('[data-v]'); if(b) calOpenChecklist(b.dataset.v, calSel); };
 }
 function calShowExcluded(){
   openModal('Excluded vehicles (no recent diesel consumption)', calExcl.length?`<div class="overflow-x-auto max-h-96"><table class="data w-full text-sm"><thead><tr><th class="text-left px-2 py-2">Vehicle</th><th class="text-left px-2 py-2">Last diesel</th></tr></thead><tbody>${calExcl.map(r=>`<tr><td class="px-2 py-2">${escapeHtml(r.v.vehicle_name)} <span class="font-mono text-xs text-slate-400">${escapeHtml(r.v.code)}</span></td><td class="px-2 py-2">${r.last?fmtDateTime(r.last)+' ('+r.days+' d ago)':'No history'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="text-sm text-slate-500">No vehicles excluded.</div>',`<button onclick="closeModal()" class="px-3 py-1.5 text-sm border border-slate-300 rounded-lg">Close</button>`);
 }
 
+/* ---------------- Overdue Vehicles (oldest first) ---------------- */
+const ovDays = k => Math.max(0, Math.round((miParse(miYmd(new Date())) - miParse(k)) / 86400000));
+ROUTES.maint_overdue = async host => {
+  host.innerHTML=`<div class="space-y-4"><div class="${miCard}">
+    <div class="flex flex-wrap items-center gap-2 mb-3"><h3 class="font-semibold text-navy-900">Overdue vehicles <span class="text-xs font-normal text-slate-500">— oldest due date first</span></h3>
+      <div class="ml-auto flex gap-2"><button id="ov_x" class="border border-slate-300 hover:bg-slate-50 rounded-lg px-3 py-1.5 text-sm">Export Excel</button><button id="ov_r" class="border border-slate-300 hover:bg-slate-50 rounded-lg px-3 py-1.5 text-sm">Refresh</button></div></div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3"><input id="ov_v" placeholder="Search vehicle" class="${miInp} w-full"/><input id="ov_i" placeholder="Filter by item" class="${miInp} w-full"/><select id="ov_c" class="${miInp} w-full"><option value="">All categories</option></select></div>
+    <div id="ov_sum" class="flex flex-wrap gap-2 mt-3 text-xs"></div></div>
+   <div id="ov_body" class="${miCard} text-slate-400 text-sm">Calculating schedule…</div></div>`;
+  ovPage=0; ['ov_v','ov_i','ov_c'].forEach(id=>document.getElementById(id).oninput=()=>{ ovPage=0; ovRender(); });
+  document.getElementById('ov_r').onclick=()=>ovLoad(); document.getElementById('ov_x').onclick=ovExport;
+  document.getElementById('ov_body').addEventListener('click',e=>{
+    const g=e.target.closest('[data-pg]');
+    if(g){ if(g.disabled) return; const t=g.dataset.pg; ovPage = t==='prev'?ovPage-1 : t==='next'?ovPage+1 : +t; ovRender(); const h=document.getElementById('ov_body'); if(h&&h.scrollIntoView) h.scrollIntoView({block:'start',behavior:'smooth'}); return; }
+    const b=e.target.closest('[data-v]'); if(b) ovDetails(b.dataset.v); });
+  document.getElementById('ov_body').addEventListener('keydown',e=>{ if(e.key!=='Enter'&&e.key!==' ') return; const b=e.target.closest('[data-v]'); if(b&&b===e.target){ e.preventDefault(); ovDetails(b.dataset.v); } });
+  await ovLoad();
+};
+async function ovLoad(){
+  const body=document.getElementById('ov_body'); if(!body) return; body.className=`${miCard} text-slate-400 text-sm`; body.textContent='Calculating schedule…';
+  try{ await calCompute(); }catch(e){ body.className=`${miCard} text-red-600 text-sm`; body.textContent=e.message; return; }
+  const cs=[...new Set(calData.filter(x=>calStatus(x.key)==='overdue').map(x=>x.cat))].sort(), sel=document.getElementById('ov_c'), cur=sel.value;
+  sel.innerHTML='<option value="">All categories</option>'+cs.map(c=>`<option ${c===cur?'selected':''}>${escapeHtml(c)}</option>`).join(''); ovRender();
+}
+function ovGroups(){
+  const g=id=>(document.getElementById(id)||{}).value||'', v=g('ov_v').trim().toLowerCase(), i=g('ov_i').trim().toLowerCase(), c=g('ov_c');
+  const rows=(calData||[]).filter(x=>calStatus(x.key)==='overdue' && (!v||x.vname.toLowerCase().includes(v)||String(x.vcode).toLowerCase().includes(v)) && (!i||x.iname.toLowerCase().includes(i)||(x.icode||'').toLowerCase().includes(i)) && (!c||x.cat===c));
+  const m=new Map(); rows.forEach(x=>{ if(!m.has(x.vcode)) m.set(x.vcode,[]); m.get(x.vcode).push(x); });
+  return [...m.entries()].map(([vc,its])=>{ its.sort((a,b)=>a.key.localeCompare(b.key)||a.iname.localeCompare(b.iname)); return {vc, vname:its[0].vname, its, oldest:its[0].key}; })
+    .sort((a,b)=>a.oldest.localeCompare(b.oldest)||a.vname.localeCompare(b.vname,undefined,{numeric:true}));
+}
+/* ---------------- Overdue Vehicles: vehicle / consumer classification + illustrations ---------------- */
+const OV_RULES = [   // checked in order against the actual vehicle name
+  ['reach',    /reach\s*-?\s*truck/i],
+  ['dump',     /dump\s*-?\s*truck|dumper|tipper/i],
+  ['forklift', /fork\s*-?\s*lift/i],
+  ['payloader',/pay\s*-?\s*loader|wheel\s*loader/i],
+  ['excavator',/excavator/i],
+  ['pickup',   /pick\s*-?\s*up/i],
+  ['trolly',   /trolly|trolley|sonalika|swaraj/i],
+  ['bus',      /\bbus\b/i]
+];
+const OV_CONSUMER_RE = /\b(civil|dlt|generator|kiln|sacmi|monalisa|monica|salow|ball\s*mill|mechanical|press)\b/i;
+const OV_CODE_KIND = {XFL:'forklift',XPL:'payloader',XEX:'excavator',XDT:'dump',XPU:'pickup',XRT:'reach',XMT:'trolly',XSB:'bus'};
+const OV_KIND_LABEL = {forklift:'Forklift',payloader:'Payloader',excavator:'Excavator',dump:'Dump truck',pickup:'Pickup',reach:'Reach truck',trolly:'Tractor with trolley',bus:'Bus',consumer:'Non-vehicle consumer',other:'Unclassified'};
+function ovKind(name, code){
+  const n=String(name||''), c=String(code||'');
+  const hit=OV_RULES.find(([k,re])=>re.test(n)); if(hit) return hit[0];      // real vehicles first, so they are never shown as consumers
+  if(OV_CONSUMER_RE.test(n)) return 'consumer';
+  return OV_CODE_KIND[c.slice(0,3).toUpperCase()] || 'other';
+}
+let ovUid=0;   // unique gradient ids per rendered icon
+const U = id => `url(#${id}@@)`;
+const ovG = (id,a,b) => `<linearGradient id="${id}@@" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
+const OV_DEFS = '<defs>' + [
+  ovG('yT','#ffe98a','#f9c316'), ovG('yF','#fbc82a','#d99400'), ovG('yS','#d99a00','#8f5d00'),
+  ovG('oT','#fdba74','#f97316'), ovG('oF','#fb923c','#c2410c'), ovG('oS','#c2570c','#7c2d12'),
+  ovG('wT','#ffffff','#e2e8f0'), ovG('wF','#f8fafc','#b6c2d1'), ovG('wS','#cbd5e1','#7b8aa0'),
+  ovG('bT','#93b4ff','#3b6ef0'), ovG('bF','#3b82f6','#1d4ed8'), ovG('bS','#1e40af','#172554'),
+  ovG('gT','#86efac','#22c55e'), ovG('gF','#22c55e','#15803d'), ovG('gS','#15803d','#14532d'),
+  ovG('sT','#d1d5db','#6b7280'), ovG('sF','#6b7280','#1f2937'), ovG('gl','#e0f2fe','#3b82f6'),
+  '<radialGradient id="tr@@" cx=".38" cy=".35" r=".8"><stop offset="0" stop-color="#6b7280"/><stop offset=".6" stop-color="#1f2937"/><stop offset="1" stop-color="#030712"/></radialGradient>',
+  '<radialGradient id="rm@@" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#f9fafb"/><stop offset="1" stop-color="#6b7280"/></radialGradient>',
+  '<radialGradient id="sh@@"><stop offset="0" stop-color="#0f172a" stop-opacity=".45"/><stop offset="1" stop-color="#0f172a" stop-opacity="0"/></radialGradient>'
+].join('') + '</defs>';
+const P = (pts,fill) => `<polygon points="${pts}" fill="${fill}"/>`;
+const R = (x,y,w,h,fill,rx=0) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}"/>`;
+const ovSh = `<ellipse cx="48" cy="61" rx="43" ry="3.2" fill="url(#sh@@)"/>`;
+// 3D wheel: back thickness + shaded tyre + metallic rim + hub + highlight
+const ovW = (x,y,r) => `<circle cx="${(x+r*.3).toFixed(1)}" cy="${(y-r*.1).toFixed(1)}" r="${r}" fill="#0b1220"/><circle cx="${x}" cy="${y}" r="${r}" fill="${U('tr')}"/><circle cx="${x}" cy="${y}" r="${(r*.52).toFixed(1)}" fill="${U('rm')}"/><circle cx="${x}" cy="${y}" r="${(r*.17).toFixed(1)}" fill="#374151"/><path d="M${(x-r*.7).toFixed(1)} ${(y-r*.45).toFixed(1)}A${r} ${r} 0 0 1 ${(x+r*.1).toFixed(1)} ${(y-r*.95).toFixed(1)}" stroke="#fff" stroke-opacity=".3" stroke-width="1" fill="none" stroke-linecap="round"/>`;
+const OV_3D = new Set(['forklift','payloader','excavator','dump','pickup','reach','trolly','bus']);
+const OV_SVG = {
+  forklift: ovSh + R(16,8,5,46,U('sF')) + P('21,8 24,10 24,52 21,54','#1f2937') + R(23,12,3,40,U('sT'))
+    + R(3,51,24,3.5,U('sF'),1) + P('3,51 7,48.5 28,48.5 27,51',U('sT'))
+    + R(30,34,44,16,U('yF'),3) + P('30,34 36,28.5 80,28.5 74,34',U('yT')) + P('74,34 80,28.5 80,45 74,50',U('yS'))
+    + `<path d="M36 28V14M64 28V14" stroke="#374151" stroke-width="2.6"/>` + P('34,15 40,10.5 70,10.5 64,15',U('sT')) + R(34,15,30,2.2,U('sF'))
+    + R(44,22,10,8,'#374151',1.5) + ovW(40,53,8) + ovW(68,53,8),
+  payloader: ovSh + P('3,34 23,34 26,52 6,52',U('yF')) + P('3,34 8,30 28,30 23,34',U('yT')) + P('23,34 28,30 31,48 26,52',U('yS')) + `<path d="M6 52h20" stroke="#374151" stroke-width="2"/>`
+    + `<path d="M24 42L40 34" stroke="#8f5d00" stroke-width="5.5" stroke-linecap="round"/><path d="M24 41L40 33" stroke="#f5b301" stroke-width="3.5" stroke-linecap="round"/>`
+    + R(34,36,52,14,U('yF'),3) + P('34,36 40,31 90,31 86,36',U('yT')) + P('86,36 90,31 90,46 86,50',U('yS')) + R(74,28,12,8,'#c98f00')
+    + R(52,17,22,20,U('yF'),2) + R(55,20,16,11,U('gl'),1) + P('52,17 57,12 79,12 74,17',U('yT')) + P('74,17 79,12 79,32 74,37',U('yS'))
+    + ovW(46,52,9) + ovW(76,52,9),
+  excavator: ovSh + R(24,50,58,11,U('sF'),5.5) + R(24,49,58,3,U('sT'),1.5)
+    + `<circle cx="32" cy="55.5" r="3.5" fill="#9ca3af"/><circle cx="74" cy="55.5" r="3.5" fill="#9ca3af"/><circle cx="44" cy="57" r="2" fill="#9ca3af"/><circle cx="53" cy="57" r="2" fill="#9ca3af"/><circle cx="62" cy="57" r="2" fill="#9ca3af"/>`
+    + R(34,36,40,14,U('yF'),2) + P('34,36 40,31 78,31 74,36',U('yT')) + P('74,36 78,31 78,46 74,50',U('yS'))
+    + R(52,18,22,19,U('yF'),2) + R(55,21,14,10,U('gl'),1) + P('52,18 57,13.5 79,13.5 74,18',U('yT')) + P('74,18 79,13.5 79,33 74,37',U('yS'))
+    + `<path d="M46 38L27 14L11 38" fill="none" stroke="#8f5d00" stroke-width="6.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M46 37L27 13L11 37" fill="none" stroke="#f9c316" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><path d="M44 34L32 22" stroke="#9ca3af" stroke-width="2"/>`
+    + `<path d="M11 38l-7 10 13 3z" fill="${U('sF')}"/><path d="M11 38l-7 10" stroke="#d1d5db" stroke-width="1"/>`,
+  dump: ovSh + R(4,46,90,6,U('sF'),1.5)
+    + P('32,22 90,14 90,46 32,46',U('yF')) + P('32,22 90,14 95,10 37,18',U('yT')) + P('90,14 95,10 95,42 90,46',U('yS'))
+    + `<path d="M44 21V46M56 19.5V46M68 18V46M80 16.5V46" stroke="#8f5d00" stroke-width="1.2" opacity=".5"/>`
+    + R(4,26,24,22,U('oF'),3) + P('4,26 9,21.5 31,21.5 28,26',U('oT')) + P('28,26 33,21.5 33,44 28,48',U('oS')) + R(7,29,14,9,U('gl'),1)
+    + ovW(16,54,7.5) + ovW(56,54,7.5) + ovW(78,54,7.5),
+  pickup: ovSh + R(6,36,84,14,U('wF'),4) + R(6,46,84,3,'#cbd5e1')
+    + P('6,36 11,32 22,32 20,36',U('sT'))
+    + P('20,36 28,20 54,20 62,36',U('wF')) + P('28,20 33,16.5 57,16.5 54,20',U('wT')) + P('26,34 31,23 52,23 58,34',U('gl'))
+    + R(64,29,26,21,U('wF'),2) + P('64,29 69,25 93,28 90,29',U('wT')) + P('90,29 93,28 93,48 90,50',U('wS')) + R(67,32,20,6,'#94a3b8',1) + R(86,40,4,3,'#fde68a',1)
+    + ovW(22,53,8) + ovW(74,53,8),
+  reach: ovSh + R(14,6,5,48,U('sF')) + P('19,6 22,8 22,52 19,54','#1f2937') + R(21,10,3,42,U('sT')) + `<path d="M12 18h9M12 28h9M12 38h9" stroke="#1f2937" stroke-width="1.2"/>`
+    + R(3,51,22,3.5,U('sF'),1) + P('3,51 7,48.5 26,48.5 25,51',U('sT'))
+    + R(28,34,48,16,U('oF'),3) + P('28,34 34,28.5 82,28.5 76,34',U('oT')) + P('76,34 82,28.5 82,45 76,50',U('oS'))
+    + `<path d="M34 28V12M66 28V12" stroke="#1f2937" stroke-width="2.6"/>` + P('32,13 38,8.5 72,8.5 66,13',U('sT')) + R(32,13,34,2.2,U('sF')) + R(42,22,10,8,'#374151',1.5)
+    + ovW(38,55,6) + ovW(66,55,6),
+  trolly: ovSh + R(6,32,26,10,U('bF'),2) + P('6,32 10,29 34,29 32,32',U('bT')) + R(28,20,14,22,U('bF'),2) + P('28,20 32,16.5 47,16.5 42,20',U('bT')) + P('42,20 47,16.5 47,38 42,42',U('bS'))
+    + `<rect x="10" y="22" width="2" height="10" fill="#374151"/><path d="M44 46h8" stroke="#374151" stroke-width="3"/>`
+    + R(52,30,40,16,U('gF'),1) + P('52,30 57,26 96,26 92,30',U('gT')) + P('92,30 96,26 96,42 92,46',U('gS'))
+    + ovW(36,49,12) + ovW(14,54,7) + ovW(64,55,6) + ovW(84,55,6),
+  bus: ovSh + R(4,14,82,36,U('wF'),6) + P('8,14 14,9.5 90,9.5 86,14',U('wT')) + P('86,14 90,9.5 90,45 86,50',U('wS'))
+    + R(10,19,14,14,U('gl'),2) + R(28,19,12,12,U('gl'),2) + R(42,19,12,12,U('gl'),2) + R(56,19,12,12,U('gl'),2) + R(70,19,12,12,U('gl'),2)
+    + R(4,38,82,6,U('bF')) + ovW(24,53,8) + ovW(68,53,8),
+  consumer: `<path d="M30 12L66 52M66 12L30 52" stroke="#dc2626" stroke-width="10" stroke-linecap="round"/>`,
+  other:    `<rect x="26" y="8" width="44" height="44" rx="8" fill="#f1f5f9" stroke="#cbd5e1"/><text x="48" y="41" text-anchor="middle" font-size="28" font-weight="700" fill="#94a3b8" font-family="Inter,Arial,sans-serif">?</text>`
+};
+const ovIcon = (kind, cls='w-full h-auto') => { const u=++ovUid, k=OV_KIND_LABEL[kind]; return `<svg viewBox="0 0 96 64" class="${cls}" role="img" aria-label="${k}"><title>${k}</title>${OV_3D.has(kind)?OV_DEFS:''}${OV_SVG[kind]||OV_SVG.other}</svg>`.replace(/@@/g,u); };
+
+let ovPage=0; const OV_PER_PAGE=10;
+const ovSev = d => d>=90?'border-l-red-600':d>=30?'border-l-orange-500':'border-l-amber-400';
+function ovRender(){
+  const body=document.getElementById('ov_body'); if(!body||!calData) return; const gr=ovGroups(), nItems=gr.reduce((a,x)=>a+x.its.length,0);
+  document.getElementById('ov_sum').innerHTML=`<span class="px-2.5 py-1 rounded-full ${CAL_CLS.overdue}">Overdue vehicles: ${gr.length}</span><span class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">Overdue items: ${nItems}</span>`;
+  if(!gr.length){ body.className=miCard; body.innerHTML='<div class="py-8 text-center text-slate-400 text-sm">No overdue vehicles.</div>'; return; }
+  const pages=Math.ceil(gr.length/OV_PER_PAGE); ovPage=Math.max(0,Math.min(ovPage,pages-1));
+  const from=ovPage*OV_PER_PAGE, list=gr.slice(from,from+OV_PER_PAGE);
+  const pb='w-9 h-9 text-sm font-semibold rounded-lg border border-slate-300 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed';
+  const nums = pages>1 && pages<=7 ? Array.from({length:pages},(_,p)=>`<button data-pg="${p}" class="w-9 h-9 text-sm font-semibold rounded-lg ${p===ovPage?'bg-teal-600 text-white':'border border-slate-300 hover:bg-slate-50'}">${p+1}</button>`).join('') : `<span class="text-sm text-slate-600 px-1">Page ${ovPage+1} of ${pages}</span>`;
+  const lbl='text-[10px] uppercase tracking-wide text-slate-400 font-medium';
+  const hasOther=gr.some(r=>ovKind(r.vname,r.vc)==='other');
+  body.className='space-y-3';
+  body.innerHTML=`<div class="grid grid-cols-1 md:grid-cols-2 gap-3">${list.map((r,n)=>{
+    const d=ovDays(r.oldest), kind=ovKind(r.vname,r.vc), pend=r.its.filter(x=>calPend.has(x.vcode+'|'+x.item_id)).length;
+    const names=r.its.map(x=>x.iname).filter((v,i,a)=>a.indexOf(v)===i).join(', ');
+    return `<div role="button" tabindex="0" data-v="${escapeHtml(r.vc)}" class="relative bg-white rounded-xl border border-slate-200 border-l-4 ${ovSev(d)} shadow-sm hover:shadow-md hover:bg-red-50/30 cursor-pointer px-3 py-2.5 transition">
+      <span class="absolute top-2 right-3 px-2 py-0.5 rounded-full text-xs font-bold ${CAL_CLS.overdue}">${d} d</span>
+      <div class="flex gap-3">
+        <div class="w-14 sm:w-[72px] shrink-0 flex items-center justify-center self-start pt-1">${ovIcon(kind)}</div>
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-col sm:flex-row gap-2 sm:gap-0">
+            <div class="sm:w-[44%] min-w-0 pr-16 sm:pr-3"><div class="text-[11px] font-medium text-slate-400 leading-none">#${from+n+1}</div>
+              <div class="text-base font-bold text-navy-900 leading-snug break-words">${escapeHtml(r.vname)}</div>
+              <div class="font-mono text-xs text-slate-500">${escapeHtml(r.vc)}</div></div>
+            <div class="flex gap-5 sm:gap-0 sm:flex-1 sm:mt-4">
+              <div class="sm:px-3 sm:border-l sm:border-slate-200"><div class="${lbl}">Oldest due</div><div class="text-sm font-semibold text-slate-800 whitespace-nowrap">${miFmt(r.oldest)}</div></div>
+              <div class="sm:px-3 sm:border-l sm:border-slate-200"><div class="${lbl}">Overdue items</div><div class="text-sm font-semibold text-slate-800">${r.its.length}${pend?` <span class="text-xs font-medium text-amber-600">· ${pend} pending</span>`:''}</div></div>
+            </div>
+          </div>
+          <div class="mt-1.5 flex items-end justify-between gap-3">
+            <div class="text-xs text-slate-500 truncate" title="${escapeHtml(names)}">${escapeHtml(names)}</div>
+            <span class="shrink-0 text-teal-700 text-xs font-semibold">View details →</span>
+          </div>
+        </div>
+      </div></div>`; }).join('')}</div>
+    <div class="${miCard} flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-600">
+        <span class="flex items-center gap-2"><span class="w-9">${ovIcon('payloader')}</span>= Vehicle</span>
+        <span class="hidden sm:block w-px h-6 bg-slate-200"></span>
+        <span class="flex items-center gap-2"><span class="w-6">${ovIcon('consumer')}</span>= Non-vehicle consumer</span>
+        ${hasOther?`<span class="flex items-center gap-2"><span class="w-6">${ovIcon('other')}</span>= Unclassified</span>`:''}
+        <span class="text-xs text-slate-400">Showing ${from+1}–${from+list.length} of ${gr.length}</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-2"><button data-pg="prev" class="${pb}" aria-label="Previous page" ${ovPage===0?'disabled':''}>«</button>${nums}<button data-pg="next" class="${pb}" aria-label="Next page" ${ovPage>=pages-1?'disabled':''}>»</button></div>
+    </div>`;
+}
+function ovDetails(vc){
+  const its=(calData||[]).filter(x=>x.vcode===vc && calStatus(x.key)==='overdue').sort((a,b)=>a.key.localeCompare(b.key)||a.iname.localeCompare(b.iname));
+  if(!its.length){ toast('No overdue items for this vehicle.','info'); return; }
+  const d=ovDays(its[0].key), kind=ovKind(its[0].vname,vc), th='text-left px-3 py-2 text-[11px] uppercase tracking-wide font-semibold text-slate-600 whitespace-nowrap';
+  openModal(its[0].vname, `
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-14 shrink-0">${ovIcon(kind)}</div>
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="font-mono text-sm text-slate-500">${escapeHtml(vc)}</span>
+        <span class="text-xs text-slate-400">${OV_KIND_LABEL[kind]}</span>
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${CAL_CLS.overdue}">Oldest: ${d} days overdue</span>
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">${its.length} overdue item${its.length>1?'s':''}</span>
+      </div>
+    </div>
+    <div class="overflow-x-auto rounded-lg border border-slate-200"><table class="w-full text-[13px] border-collapse">
+      <thead><tr class="bg-blue-50 border-b border-blue-100"><th class="${th}">Item</th><th class="${th}">Last Change</th><th class="${th}">Due Date</th><th class="${th}">Overdue By</th><th class="${th} text-right">Qty</th></tr></thead>
+      <tbody>${its.map(x=>{ const has=calPend.has(x.vcode+'|'+x.item_id), p=calPend.get(x.vcode+'|'+x.item_id);
+        return `<tr class="border-t border-slate-100 align-top ${has?'bg-amber-50/60':''}">
+          <td class="px-3 py-2"><div class="font-semibold text-slate-900 leading-tight">${escapeHtml(x.iname)}</div>
+            <div class="text-[11px] text-slate-500">${escapeHtml(x.cat||'')}${x.icode?' · <span class="font-mono">'+escapeHtml(x.icode)+'</span>':''}${calEvery(x)?' · '+calEvery(x):''}</div>${calUsageNote(x)}
+            ${has?`<div class="mt-1 text-[11px] font-medium text-amber-700">Pending — ${escapeHtml(p||'no reason given')}</div>`:''}</td>
+          <td class="px-3 py-2 whitespace-nowrap tabular-nums text-slate-700">${x.last?miFmt(x.last):'—'}</td>
+          <td class="px-3 py-2 whitespace-nowrap tabular-nums font-semibold text-red-600">${miFmt(x.key)}</td>
+          <td class="px-3 py-2 whitespace-nowrap">${calChip(x.key,true)}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-right">${escapeHtml(x.qty)} ${escapeHtml(x.uom||'')}</td></tr>`; }).join('')}</tbody></table></div>`,
+    `<button onclick="closeModal()" class="px-4 py-2 text-sm border border-slate-300 rounded-lg">Close</button>
+     <button data-v="${escapeHtml(vc)}" onclick="calOpenChecklist(this.dataset.v,'overdue')" class="px-4 py-2 text-sm bg-teal-600 hover:bg-teal-700 text-white rounded-lg">Open checklist →</button>`);
+}
+function ovExport(){
+  if(typeof XLSX==='undefined'){ toast('Excel library not loaded.','error'); return; }
+  const out=[]; ovGroups().forEach((r,n)=>r.its.forEach(x=>out.push({'#':n+1,'Vehicle':r.vname,'Vehicle Code':r.vc,'Item':x.iname,'Item Code':x.icode||'','Category':x.cat,'Due Date':x.key,'Days Overdue':ovDays(x.key),'Required Qty':x.qty,'UoM':x.uom,'Basis':x.note,'Pending Reason':calPend.get(x.vcode+'|'+x.item_id)||''})));
+  if(!out.length){ toast('Nothing to export.','error'); return; }
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(out),'Overdue'); XLSX.writeFile(wb,`overdue_vehicles_${deToday()}.xlsx`);
+}
+
 /* ---------------- Maintenance Checklist (per vehicle) ---------------- */
 let ckItems=[];
 function calOpenChecklist(vcode, key){
-  ckItems=calData.filter(x=>x.vcode===vcode && x.key===key); if(!ckItems.length) return; const v=ckItems[0], today=miYmd(new Date());
-  openModal(`Maintenance checklist — ${v.vname}`, `<div class="text-xs text-slate-500 mb-3">${escapeHtml(vcode)} · due ${miFmt(key)} · ${CAL_LBL[calStatus(key)]}</div><div id="ck_list" class="space-y-3">
+  const allOver=(key==='overdue'); ckItems=calData.filter(x=>x.vcode===vcode && (allOver? calStatus(x.key)==='overdue' : x.key===key)); if(!ckItems.length) return; const v=ckItems[0], today=miYmd(new Date());
+  openModal(`Maintenance checklist — ${v.vname}`, `<div class="text-xs text-slate-500 mb-3">${escapeHtml(vcode)} · ${allOver?'all overdue items':'due '+miFmt(key)+' · '+CAL_LBL[calStatus(key)]}</div><div id="ck_list" class="space-y-3">
    ${ckItems.map((x,i)=>{ const pr=calPend.get(x.vcode+'|'+x.item_id); return `<div class="border border-slate-200 rounded-xl p-3" data-i="${i}">
     <div class="flex flex-wrap justify-between gap-2"><div><div class="text-sm font-semibold">${i+1}. ${escapeHtml(x.iname)}</div><div class="text-xs text-slate-500">${escapeHtml(x.cat)} · Required qty ${x.qty} ${escapeHtml(x.uom)}</div><div class="text-[11px] text-slate-400">${escapeHtml(x.note)}</div>${pr!==undefined?`<div class="text-[11px] text-amber-700 mt-1">Pending — ${escapeHtml(pr||'')}</div>`:''}</div>
     <div class="flex gap-1.5 items-start"><label class="cursor-pointer"><input type="radio" name="ck${i}" value="yes" class="peer sr-only"/><span class="block px-3 py-1.5 rounded-lg text-sm font-bold bg-slate-100 text-slate-500 peer-checked:bg-green-100 peer-checked:text-green-700">Yes</span></label><label class="cursor-pointer"><input type="radio" name="ck${i}" value="no" class="peer sr-only"/><span class="block px-3 py-1.5 rounded-lg text-sm font-bold bg-slate-100 text-slate-500 peer-checked:bg-red-100 peer-checked:text-red-700">No</span></label></div></div>
@@ -4004,9 +5018,119 @@ async function ckSave(card, btn){
   await db.from('maintenance_checklist_status').delete().eq('vehicle_code',x.vcode).eq('item_id',x.item_id); calPend.delete(x.vcode+'|'+x.item_id);
   try{ await logActivity('CHECKLIST_REPLACEMENT',RH_TABLE,null,`${x.vname} / ${x.iname}`); }catch(e){}
   calData=calData.filter(z=>!(z.vcode===x.vcode&&z.item_id===x.item_id)); toast('Replacement recorded','success');
-  card.innerHTML=`<div class="text-sm text-green-700 font-medium">&#10003; ${escapeHtml(x.iname)} — completed</div>`; calRender();
+  card.innerHTML=`<div class="text-sm text-green-700 font-medium">&#10003; ${escapeHtml(x.iname)} — completed</div>`; calRender(); if(typeof ovRender==='function') ovRender();
 }
 
+
+/* ============================================================
+   VEHICLE STATUS  (read-only, per-vehicle overview)
+   Reuses: oilDb.master (vehicle list), oilDb.diesel_data, item_replacement_history,
+   maintenance_interval_settings + vehicle_interval_overrides (same interval rules as the Maintenance Calendar).
+   ============================================================ */
+let vsCfg=null, vsCur=null, vsF={st:'all',nr:false,dp:0,hp:0};
+const VS_PG=15, vsNum=(n,d=0)=>Number(n||0).toLocaleString('en-US',{maximumFractionDigits:d});
+const VS_ST={overdue:['Overdue','bg-red-50 text-red-700 border-red-200'],upcoming:['Upcoming','bg-orange-50 text-orange-700 border-orange-200'],ok:['Up to date','bg-green-50 text-green-700 border-green-200'],nodata:['No meter data','bg-slate-50 text-slate-600 border-slate-200'],norec:['No service record','bg-slate-50 text-slate-500 border-slate-200']};
+const vsBadge=(s,t)=>`<span class="inline-block whitespace-nowrap text-[11px] font-semibold px-2 py-0.5 rounded-md border ${VS_ST[s][1]}">${escapeHtml(t||VS_ST[s][0])}</span>`;
+const vsAll=async mk=>{ let out=[]; for(let f=0;;f+=1000){ const {data,error}=await mk().range(f,f+999); if(error) throw error; out=out.concat(data||[]); if(!data||data.length<1000) break; } return out; };
+const vsPl=n=>n===1?'day':'days';
+
+ROUTES.vehicle_status = async host => {
+  vsCur=null; vsCfg=null; vsF={st:'all',nr:false,dp:0,hp:0};
+  host.innerHTML=`<div class="max-w-[1200px] mx-auto space-y-4"><div class="${miCard}">
+    <div class="flex items-start gap-2 mb-3"><div><h3 class="text-lg font-bold text-navy-900">Vehicle Status</h3><p class="text-xs text-slate-500">Pick a type or search a vehicle to view its status</p></div>
+      <button id="vs_rf" class="ml-auto border border-slate-300 hover:bg-slate-50 rounded-lg px-3 py-1.5 text-sm">Refresh</button></div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-2"><select id="vs_t" class="${miInp} w-full"></select><input id="vs_q" placeholder="Search vehicle name or code" class="${miInp} w-full"/><select id="vs_v" class="${miInp} w-full"></select></div></div>
+    <div id="vs_body" class="${miCard} text-slate-400 text-sm">Loading vehicles…</div></div>`;
+  const $=id=>document.getElementById(id);
+  await fqLoadVehicles();
+  const kinds=[...new Set(fqVehicles.map(v=>ovKind(v.vehicle_name,v.code)))].sort((a,b)=>OV_KIND_LABEL[a].localeCompare(OV_KIND_LABEL[b]));
+  $('vs_t').innerHTML='<option value="">All types</option>'+kinds.map(k=>`<option value="${k}">${OV_KIND_LABEL[k]}</option>`).join('');
+  const fill=()=>{ const t=$('vs_t').value, q=fqNorm($('vs_q').value), cur=$('vs_v').value;
+    const l=fqVehicles.filter(v=>(!t||ovKind(v.vehicle_name,v.code)===t)&&(!q||fqNorm(v.vehicle_name).includes(q)||fqNorm(v.code).includes(q)));
+    $('vs_v').innerHTML=`<option value="">Select vehicle (${l.length})</option>`+l.map(v=>`<option value="${escapeHtml(v.code)}" ${v.code===cur?'selected':''}>${escapeHtml(v.vehicle_name)} · ${escapeHtml(v.code)}</option>`).join('');
+    if(l.length===1 && q && !(vsCur&&vsCur.v.code===l[0].code)){ $('vs_v').value=l[0].code; vsLoad(l[0].code); } };
+  $('vs_t').onchange=fill; $('vs_q').oninput=fill; $('vs_v').onchange=e=>{ if(e.target.value) vsLoad(e.target.value); };
+  $('vs_rf').onclick=()=>{ vsCfg=null; const c=$('vs_v').value; if(c) vsLoad(c); };
+  $('vs_body').addEventListener('click',e=>{ const b=e.target.closest('[data-vf],[data-vp]'); if(!b) return;
+    if(b.dataset.vf){ vsF.st=b.dataset.vf; } else { const [k,d]=b.dataset.vp.split(':'); vsF[k+'p']=Math.max(0,vsF[k+'p']+(+d)); } vsRender(); });
+  $('vs_body').addEventListener('change',e=>{ if(e.target.id==='vs_nr'){ vsF.nr=e.target.checked; vsRender(); } });
+  fill(); $('vs_body').textContent='Select a vehicle to view its status.'; $('vs_body').classList.add('text-center');
+};
+
+async function vsLoad(code){
+  const body=document.getElementById('vs_body'); if(!body) return; body.className=`${miCard} text-slate-400 text-sm`; body.textContent='Loading vehicle status…'; vsF.dp=0; vsF.hp=0;
+  try{
+    if(!vsCfg){
+      const [s,o]=await Promise.all([vsAll(()=>db.from('maintenance_interval_settings').select('*')),vsAll(()=>db.from('vehicle_interval_overrides').select('*'))]);
+      const ids=[...new Set([...s.filter(x=>x.enabled).map(x=>x.item_id),...o.filter(x=>x.interval_type!=='No Interval').map(x=>x.item_id)])];
+      const its=ids.length?await miInChunks('items','id',ids,'id,item_name,item_code,item_category,unit'):[];
+      vsCfg={std:new Map(s.map(x=>[x.item_id,x])),ov:new Map(o.map(x=>[x.vehicle_code+'|'+x.item_id,x])),ids,im:new Map(its.map(i=>[i.id,i]))};
+    }
+    const v=fqVehicles.find(x=>x.code===code)||{code,vehicle_name:code};
+    const [rh,dzRaw]=await Promise.all([
+      vsAll(()=>db.from(RH_TABLE).select('id,replacement_date,item_id,item_name,item_code,item_category,quantity,uom,meter_reading,entry_type,created_at').eq('vehicle_code',code).order('replacement_date',{ascending:false}).order('created_at',{ascending:false}).order('id',{ascending:false})),
+      vsAll(()=>oilDb.from('diesel_data').select('*').in('code',[...new Set([code,code.toUpperCase(),code.toLowerCase()])]).order('entry_datetime',{ascending:false}).order('id',{ascending:false}))]);
+    const mk=dzRaw.length?(Object.keys(dzRaw[0]).find(k=>/^(meter_reading|meter|hour_meter|hmr|odometer|reading|current_meter)$/i.test(k))||Object.keys(dzRaw[0]).find(k=>/meter|hmr|odo|reading/i.test(k))):null;
+    const dz=dzRaw.map(r=>({d:r.entry_datetime,q:+r.quantity||0,m:mk&&+r[mk]>0?+r[mk]:null}));
+    const lastDz=dz.find(r=>r.m), cur=Math.max(lastDz?lastDz.m:0,...rh.map(r=>+r.meter_reading||0))||null;
+    const eff=iid=>{ const o=vsCfg.ov.get(code+'|'+iid), s=vsCfg.std.get(iid);
+      if(o) return o.interval_type==='No Interval'?null:{type:o.interval_type,val:+o.interval_value};
+      return s&&s.enabled&&s.interval_type!=='No Interval'?{type:s.interval_type,val:+s.interval_value}:null; };
+    const last=new Map(); rh.forEach(r=>{ if(r.item_id&&!last.has(r.item_id)) last.set(r.item_id,r); });
+    const sched=[];
+    vsCfg.ids.forEach(iid=>{
+      const e=eff(iid); if(!e||!(e.val>0)) return; const it=vsCfg.im.get(iid)||{}, r=last.get(iid), u=MI_UNIT[e.type]||'';
+      const o={name:it.item_name||(r&&r.item_name)||'—',code:it.item_code||(r&&r.item_code)||'',cat:it.item_category||(r&&r.item_category)||'',every:`Every ${vsNum(e.val)} ${u}`,
+        last:r?String(r.replacement_date).slice(0,10):null,st:'norec',next:'—',left:'',over:'—',txt:''};
+      if(r){
+        const ld=o.last;
+        if(e.type==='Days'){ const d=miParse(ld); d.setDate(d.getDate()+e.val); const k=miYmd(d), rem=calDiff(k); o.next=miFmt(k);
+          if(rem<0){ o.st='overdue'; o.over=`${-rem} ${vsPl(-rem)}`; } else if(rem<=7){ o.st='upcoming'; o.left=rem===0?'Due today':`Due in ${rem} ${vsPl(rem)}`; } else { o.st='ok'; o.left=`${rem} days left`; } }
+        else if(e.type==='Hours'||e.type==='Kilometers'){ const lm=+r.meter_reading;
+          if(!(lm>0)||!cur){ o.st='nodata'; }
+          else { const nd=lm+e.val, rem=nd-cur; o.next=`At ${vsNum(nd)} ${u}`;
+            if(rem<0){ o.st='overdue'; o.over=`${vsNum(-rem)} ${u}`; } else if(rem<=e.val*0.1){ o.st='upcoming'; o.left=`${vsNum(rem)} ${u} left`; } else { o.st='ok'; o.left=`${vsNum(rem)} ${u} left`; } } }
+        else if(e.type==='Diesel Litres'){ const t0=new Date(ld+'T00:00:00'), used=dz.filter(x=>new Date(x.d)>=t0).reduce((a,x)=>a+x.q,0), rem=e.val-used; o.next=`After ${vsNum(e.val)} L`;
+          if(rem<0){ o.st='overdue'; o.over=`${vsNum(-rem)} L`; } else if(rem<=e.val*0.1){ o.st='upcoming'; o.left=`${vsNum(rem)} L left`; } else { o.st='ok'; o.left=`${vsNum(rem)} L left`; } }
+      }
+      o.txt=o.st==='upcoming'?`Upcoming · ${o.left}`:(o.st==='overdue'?'Overdue':'');
+      sched.push(o);
+    });
+    const rank={overdue:0,upcoming:1,ok:2,nodata:3,norec:4}; sched.sort((a,b)=>rank[a.st]-rank[b.st]||a.name.localeCompare(b.name,undefined,{numeric:true}));
+    vsCur={v,sched,hist:rh,dz,mk,cur,total:dz.reduce((a,x)=>a+x.q,0)};
+    body.className=''; vsRender();
+  }catch(err){ body.className=`${miCard} text-red-600 text-sm`; body.textContent=err.message||String(err); }
+}
+
+function vsRender(){
+  const c=vsCur, body=document.getElementById('vs_body'); if(!c||!body) return;
+  const {v,sched,hist,dz,mk,cur,total}=c, kind=ovKind(v.vehicle_name,v.code), cnt=s=>sched.filter(x=>x.st===s).length;
+  const vis=sched.filter(x=>x.st!=='norec'||vsF.nr), shown=vis.filter(x=>vsF.st==='all'||x.st===vsF.st), hidden=sched.filter(x=>x.st==='norec').length;
+  const ovl=cnt('overdue')?'overdue':cnt('upcoming')?'upcoming':cnt('ok')?'ok':null;
+  const tile=(l,val)=>`<div class="min-w-0"><div class="text-[11px] text-slate-500">${l}</div><div class="text-sm font-bold text-navy-900 break-words">${val}</div></div>`;
+  const th='px-3 py-2 font-semibold', td='px-3 py-2 align-top', thead=cols=>`<thead><tr class="bg-blue-50 border-b border-blue-100 text-left text-xs text-slate-600">${cols.map(x=>`<th class="${th}">${x}</th>`).join('')}</tr></thead>`;
+  const chip=(f,l,n)=>`<button data-vf="${f}" class="px-2.5 py-1 rounded-full text-xs font-medium border ${vsF.st===f?'bg-navy-800 text-white border-navy-800':'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'}">${l}${n==null?'':' · '+n}</button>`;
+  const pager=(k,n,p)=>{ const pages=Math.max(1,Math.ceil(n/VS_PG)); return n>VS_PG?`<div class="flex items-center justify-between mt-3 text-xs text-slate-500"><span>Page ${p+1} of ${pages} · ${n} records</span><span class="flex gap-2"><button data-vp="${k}:-1" ${p<=0?'disabled':''} class="border border-slate-300 rounded-lg px-3 py-1 disabled:opacity-40">Prev</button><button data-vp="${k}:1" ${p>=pages-1?'disabled':''} class="border border-slate-300 rounded-lg px-3 py-1 disabled:opacity-40">Next</button></span></div>`:''; };
+  vsF.dp=Math.min(vsF.dp,Math.max(0,Math.ceil(dz.length/VS_PG)-1)); vsF.hp=Math.min(vsF.hp,Math.max(0,Math.ceil(hist.length/VS_PG)-1));
+  const nxt=x=>`<div>${escapeHtml(x.next)}</div>${x.left?`<div class="text-[11px] text-slate-400">${x.left}</div>`:''}`;
+  const srows=shown.map(x=>`<tr class="border-b border-slate-100"><td class="${td}"><div class="font-medium text-slate-800">${escapeHtml(x.name)}</div><div class="text-[11px] text-slate-400">${escapeHtml(x.cat)}${x.code?' · '+escapeHtml(x.code):''}</div></td><td class="${td}">${x.every}</td><td class="${td}">${x.last?miFmt(x.last):'—'}</td><td class="${td}">${nxt(x)}</td><td class="${td} ${x.st==='overdue'?'font-semibold text-red-600':''}">${x.over}</td><td class="${td}">${vsBadge(x.st,x.txt)}</td></tr>`).join('');
+  const scards=shown.map(x=>`<div class="rounded-lg border border-slate-200 p-3"><div class="flex items-start justify-between gap-2"><div class="min-w-0"><div class="font-medium text-slate-800 text-sm">${escapeHtml(x.name)}</div><div class="text-[11px] text-slate-400">${escapeHtml(x.cat)} · ${x.every}</div></div>${vsBadge(x.st,x.txt)}</div>
+    <div class="grid grid-cols-2 gap-2 mt-2 text-xs"><div><div class="text-slate-500">Last service</div><b>${x.last?miFmt(x.last):'—'}</b></div><div><div class="text-slate-500">Next due</div><b>${escapeHtml(x.next)}</b></div>${x.st==='overdue'?`<div class="col-span-2 text-red-600 font-semibold">Overdue by ${x.over}</div>`:''}</div></div>`).join('');
+  const dRows=dz.slice(vsF.dp*VS_PG,(vsF.dp+1)*VS_PG).map(x=>`<tr class="border-b border-slate-100"><td class="${td}">${fmtDateTime(x.d)}</td><td class="${td} text-right font-medium">${vsNum(x.q,1)}</td><td class="${td} text-right">${x.m?vsNum(x.m,1):'—'}</td></tr>`).join('');
+  const hRows=hist.slice(vsF.hp*VS_PG,(vsF.hp+1)*VS_PG).map(x=>`<tr class="border-b border-slate-100"><td class="${td}">${miFmt(String(x.replacement_date).slice(0,10))}</td><td class="${td}"><span class="font-medium text-slate-800">${escapeHtml(x.item_name)}</span><span class="text-[11px] text-slate-400"> ${escapeHtml(x.item_category||'')}</span></td><td class="${td} text-right">${x.quantity!=null?vsNum(x.quantity,2)+' '+escapeHtml(x.uom||''):'—'}</td><td class="${td} text-right">${+x.meter_reading>0?vsNum(x.meter_reading,1):'—'}</td></tr>`).join('');
+  const card=(t,inner)=>`<div class="${miCard}"><h4 class="text-xs font-bold uppercase tracking-wide text-slate-500 mb-3">${t}</h4>${inner}</div>`;
+  body.innerHTML=`<div class="space-y-4">
+   <div class="${miCard}"><div class="flex items-center gap-3"><div class="w-16 shrink-0">${ovIcon(kind)}</div>
+     <div class="min-w-0"><div class="text-lg font-bold text-navy-900 leading-tight break-words">${escapeHtml(v.vehicle_name)}</div><div class="font-mono text-xs text-slate-500">${escapeHtml(v.code)} · ${OV_KIND_LABEL[kind]}</div></div>
+     <div class="ml-auto">${ovl?vsBadge(ovl,ovl==='overdue'?'OVERDUE':ovl==='upcoming'?'UPCOMING':'UP TO DATE'):''}</div></div>
+     <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4 pt-4 border-t border-slate-100">${tile('Last Service',hist.length?miFmt(String(hist[0].replacement_date).slice(0,10)):'—')}${tile('Current Meter',cur?vsNum(cur,1):'N/A')}${tile('Last Diesel',dz.length?fmtDate(dz[0].d):'—')}${tile('Total Diesel',vsNum(total,1)+' LTR')}${tile('Diesel Entries / Services',dz.length+' / '+hist.length)}</div></div>
+   ${card('Scheduled Maintenance',`<div class="flex flex-wrap items-center gap-1.5 mb-3">${chip('all','All',vis.length)}${chip('overdue','Overdue',cnt('overdue'))}${chip('upcoming','Upcoming',cnt('upcoming'))}${chip('ok','Up to date',cnt('ok'))}
+      <label class="ml-auto flex items-center gap-1.5 text-xs text-slate-600"><input id="vs_nr" type="checkbox" ${vsF.nr?'checked':''}/> Show items with no service record${hidden?` (${hidden})`:''}</label></div>
+     ${shown.length?`<div class="hidden md:block overflow-x-auto"><table class="w-full text-sm">${thead(['Item Name','Interval','Last Service','Next Due','Overdue By','Status'])}<tbody>${srows}</tbody></table></div><div class="md:hidden space-y-2">${scards}</div>`:'<div class="py-6 text-center text-slate-400 text-sm">No scheduled maintenance items to show.</div>'}`)}
+   ${card('Diesel Consumption History',dz.length?`<div class="overflow-x-auto"><table class="w-full text-sm">${thead(['Date','Quantity (LTR)','Meter Reading'].map((x,i)=>i?`<span class="block text-right">${x}</span>`:x))}<tbody>${dRows}</tbody></table></div>${pager('d',dz.length,vsF.dp)}${mk?'':'<div class="text-[11px] text-slate-400 mt-2">No meter column found in diesel records.</div>'}`:'<div class="py-4 text-center text-slate-400 text-sm">No diesel consumption records.</div>')}
+   ${card('Maintenance History',hist.length?`<div class="overflow-x-auto"><table class="w-full text-sm">${thead(['Date','Item',`<span class="block text-right">Quantity</span>`,`<span class="block text-right">Meter</span>`])}<tbody>${hRows}</tbody></table></div>${pager('h',hist.length,vsF.hp)}`:'<div class="py-4 text-center text-slate-400 text-sm">No maintenance records.</div>')}
+  </div>`;
+}
 </script>
 </body>
 </html>
