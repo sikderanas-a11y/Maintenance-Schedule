@@ -1,0 +1,2 @@
+/* responsive.css — extra small-screen safeguards (additive) */
+@media (max-width:640px){ #page{padding:12px} table{font-size:13px} }

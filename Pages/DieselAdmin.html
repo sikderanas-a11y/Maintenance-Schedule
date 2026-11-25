@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diesel Tracker — Admin Portal</title>
+<script>try{if(localStorage.getItem('sb-oshqaazzteqqukilghev-auth-token'))document.documentElement.classList.add('has-sess');}catch(e){}</script>
+<style>html.has-sess #adminLoginScreen{display:none!important}#bootLoad{display:none}html.has-sess #bootLoad{display:flex;position:fixed;inset:0;align-items:center;justify-content:center;background:#f4f6f9;color:#475569;font:600 14px Arial,sans-serif;z-index:9999}</style>
+<link rel="stylesheet" href="../Assets/css/diesel.css">
+<!-- Diesel Admin has its OWN Supabase config/auth (inside app.js). Nothing is shared with Vehicle Maintenance. -->
+<script defer src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script defer src="../Assets/js/diesel/dt-init.js"></script>
+<script defer src="../Assets/js/diesel/qr-encoder.js"></script>
+</head>
+<body>
+
+<!-- ============ ICON SPRITE (Lucide-style, inline, no external dependency) ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+<symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+<symbol id="i-fuel" viewBox="0 0 24 24"><path d="M3 22h12"/><path d="M4 9h10"/><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"/><path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 5"/></symbol>
+<symbol id="i-gauge" viewBox="0 0 24 24"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></symbol>
+<symbol id="i-hardhat" viewBox="0 0 24 24"><path d="M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2z"/><path d="M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5"/><path d="M4 15v-3a6 6 0 0 1 6-6"/><path d="M14 6a6 6 0 0 1 6 6v3"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+<symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+<symbol id="i-checkc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></symbol>
+<symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></symbol>
+<symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+<symbol id="i-chevright" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+<symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></symbol>
+<symbol id="i-calendar" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 16h5v5"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
+</defs></svg>
+
+<!-- ================= ADMIN LOGIN ================= -->
+<div id="bootLoad">Loading…</div>
+<div id="adminLoginScreen">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="logo-mark"><svg class="ic lg"><use href="#i-drop"/></svg><img src="../Assets/images/logo.png" alt="Logo" onerror="this.remove()"></div>
+      <h2>Diesel Tracker</h2>
+      <p>Admin Portal — sign in to continue</p>
+    </div>
+    <div id="adminLoginMsg"></div>
+    <div class="field">
+      <label>Email</label>
+      <input type="text" id="adminLoginUsername" placeholder="Email address" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="adminLoginPassword" placeholder="Password" autocomplete="current-password">
+    </div>
+    <button class="btn full" id="adminLoginBtn" onclick="handleAdminLogin()">Log In</button>
+  </div>
+</div>
+
+<div class="shell hidden" id="adminShell">
+  <!-- ================= SIDEBAR ================= -->
+  <nav class="sidebar" id="sidebar">
+    <a onclick="if(history.length>1){history.back();return false;}" href="../index.html" title="Back" style="display:block;padding:10px 16px;color:#fff;font-size:13px;font-weight:600;text-decoration:none;opacity:.9">&#8592; Back</a>
+    <div class="sb-brand">
+      <div class="logo-mark"><svg class="ic lg"><use href="#i-drop"/></svg><img src="../Assets/images/logo.png" alt="Logo" onerror="this.remove()"></div>
+      <div class="sb-title">DIESEL TRACKER<small>Admin Portal</small></div>
+    </div>
+    <div class="nav-list">
+      <div class="navitem active" data-page="dashboard" title="Dashboard" onclick="switchPage('dashboard')"><svg class="ic"><use href="#i-dashboard"/></svg><span class="nl">Dashboard</span></div>
+      <div class="navitem" data-page="heatmap" title="Vehicle vs Date Heat Map" onclick="switchPage('heatmap')"><svg class="ic"><use href="#i-chart"/></svg><span class="nl">Vehicle vs Date Heat Map</span></div>
+      <div class="navitem" data-page="create" title="Create &amp; Generate QR Codes" onclick="switchPage('create')"><svg class="ic"><use href="#i-qr"/></svg><span class="nl">Create &amp; Generate QR Codes</span></div>
+      <div class="navitem" data-page="report" title="Download Report" onclick="switchPage('report')"><svg class="ic"><use href="#i-download"/></svg><span class="nl">Download Report</span></div>
+      <div class="navitem" data-page="drivers" title="Driver Information" onclick="switchPage('drivers')"><svg class="ic"><use href="#i-users"/></svg><span class="nl">Driver Information</span></div>
+      <div class="navitem" data-page="rates" title="Consumption Rate" onclick="switchPage('rates')"><svg class="ic"><use href="#i-fuel"/></svg><span class="nl">Consumption Rate</span></div>
+      <div class="navitem" data-page="dispenser" title="Admin Dispenser Meter Reading" onclick="switchPage('dispenser')"><svg class="ic"><use href="#i-gauge"/></svg><span class="nl">Admin Dispenser Meter Reading</span></div>
+      <div class="navitem" data-page="opmeter" title="Operator Dispenser Meter Reading" onclick="switchPage('opmeter')"><svg class="ic"><use href="#i-hardhat"/></svg><span class="nl">Operator Dispenser Meter Reading</span></div>
+      <div class="navitem" data-page="recon" title="Dispenser Meter Reconciliation" onclick="switchPage('recon')"><svg class="ic"><use href="#i-chart"/></svg><span class="nl">Dispenser Meter Reconciliation</span></div>
+      <div class="navitem" data-page="timewise" title="Time-Wise Consumption" onclick="switchPage('timewise')"><svg class="ic"><use href="#i-chart"/></svg><span class="nl">Time-Wise Consumption</span></div>
+      <div class="navitem" data-page="operators" title="Operator Information" onclick="switchPage('operators')"><svg class="ic"><use href="#i-hardhat"/></svg><span class="nl">Operator Information</span></div>
+      <div class="navitem" data-page="useraccess" title="User Access (Settings)" onclick="switchPage('useraccess')"><svg class="ic"><use href="#i-shield"/></svg><span class="nl">User Access</span></div>
+      <div class="navitem" title="Change Password" onclick="pwOpen();closeSidebar()"><svg class="ic"><use href="#i-lock"/></svg><span class="nl">Change Password</span></div>
+    </div>
+    <div class="sb-foot">
+      <div class="navitem logout" title="Logout" onclick="handleAdminLogout()"><svg class="ic"><use href="#i-logout"/></svg><span class="nl">Logout</span></div>
+    </div>
+  </nav>
+  <div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
+
+  <div class="main">
+    <!-- ================= HEADER ================= -->
+    <header class="topbar">
+      <button class="icon-btn" id="menuBtn" type="button" onclick="toggleSidebar()" aria-label="Toggle navigation"><svg class="ic"><use href="#i-menu"/></svg></button>
+      <div class="tb-title">
+        <h1 id="hdrTitle">Dashboard</h1>
+        <div class="crumbs"><svg class="ic sm"><use href="#i-home"/></svg><span>Fleet Management</span><svg class="ic sm"><use href="#i-chevright"/></svg><span class="cur" id="hdrCrumb">Overview</span></div>
+      </div>
+      <div class="user-chip">
+        <div class="avatar" id="hdrAvatar">A</div>
+        <div class="user-meta"><b id="hdrUserEmail">Administrator</b><span id="hdrUserRole">Admin</span></div>
+      </div>
+    </header>
+
+    <main class="content">
+
+    <!-- ================= USER ACCESS ================= -->
+    <div class="page" id="page-useraccess">
+      <p class="page-sub">Manage User Access — choose which dashboards each email can open.</p>
+      <div class="card">
+        <div class="toolbar">
+          <label class="search-box"><svg class="ic"><use href="#i-search"/></svg><input type="text" class="input" id="uaSearch" placeholder="Search by email address" oninput="uaRender()"></label>
+          <button class="btn" onclick="uaOpenAdd()"><svg class="ic"><use href="#i-plus"/></svg>Add New User</button>
+        </div>
+        <div id="uaMsg"></div>
+        <div class="ua-wrap"><table class="ua-tbl">
+          <thead><tr><th>Email Address</th><th>Accessible Dashboards</th><th>Status</th><th>Last Updated</th><th>Actions</th></tr></thead>
+          <tbody id="uaBody"><tr><td colspan="5">Loading...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ================= DASHBOARD ================= -->
+    <div class="page active" id="page-dashboard">
+      <p class="page-sub">Overview of vehicles and diesel consumption.</p>
+      <div class="grid-3">
+        <div class="kpi"><div class="kpi-ic"><svg class="ic lg"><use href="#i-truck"/></svg></div><div><div class="num" id="statVehicles">–</div><div class="lbl">Total Vehicles</div></div></div>
+        <div class="kpi navy"><div class="kpi-ic"><svg class="ic lg"><use href="#i-file"/></svg></div><div><div class="num" id="statEntries">–</div><div class="lbl">Total Diesel Entries</div></div></div>
+        <div class="kpi amber"><div class="kpi-ic"><svg class="ic lg"><use href="#i-calendar"/></svg></div><div><div class="num" id="statToday">–</div><div class="lbl">Entries Today</div></div></div>
+        <div class="kpi navy"><div class="kpi-ic"><svg class="ic lg"><use href="#i-users"/></svg></div><div><div class="num" id="statDrivers">–</div><div class="lbl">Total Drivers</div></div></div>
+        <div class="kpi"><div class="kpi-ic"><svg class="ic lg"><use href="#i-drop"/></svg></div><div><div class="num" id="statTotalConsumption">–</div><div class="lbl">Total Consumption (L)</div></div></div>
+        <div class="kpi green"><div class="kpi-ic"><svg class="ic lg"><use href="#i-checkc"/></svg></div><div><div class="num" id="statVehiclesWithEntries">–</div><div class="lbl">Vehicles with Diesel Entries</div></div></div>
+      </div>
+
+      <!-- ============ VEHICLE CONSUMPTION ANALYSIS ============ -->
+      <div class="card">
+        <div class="card-head"><span class="card-ic"><svg class="ic"><use href="#i-chart"/></svg></span><div><h3 class="card-title">Vehicle Consumption Analysis</h3><p class="card-sub">Select a vehicle and period to chart its diesel usage.</p></div></div>
+        <div class="filter-bar">
+          <div class="field"><label>Vehicle</label>
+            <select id="analysisVehicleSelect" onchange="applyAnalysis()"><option value="">-- Select a vehicle --</option></select></div>
+          <div class="field"><label>Start Date</label><input type="date" id="analysisFrom"></div>
+          <div class="field"><label>End Date</label><input type="date" id="analysisTo"></div>
+          <div class="field" style="flex:0 0 auto;"><label>View</label>
+            <div class="view-toggle">
+              <button id="viewDateBtn" class="active" onclick="setAnalysisView('date')">Date</button>
+              <button id="viewMonthBtn" onclick="setAnalysisView('month')">Month</button>
+              <button id="viewYearBtn" onclick="setAnalysisView('year')">Year</button>
+            </div></div>
+          <div class="field" style="flex:0 0 auto;"><button class="btn" onclick="applyAnalysis()">Apply</button></div>
+        </div>
+
+        <div id="analysisMsg"></div>
+
+        <div id="analysisChartArea" class="hidden" style="margin-top:16px;">
+          <div class="section-title" style="margin-top:0;">Consumption (LTR) vs Time</div>
+          <div class="chart-wrap"><div class="chart-bars" id="chartBars"></div></div>
+          <div class="chart-tooltip" id="chartTooltip"></div>
+          <div class="section-title">Consumption Summary</div>
+          <div class="summary-grid" id="analysisSummary"></div>
+        </div>
+      </div>
+
+      <!-- ============ COMPREHENSIVE DIESEL DATA ============ -->
+      <div class="card">
+        <div class="card-head"><span class="card-ic"><svg class="ic"><use href="#i-file"/></svg></span><div><h3 class="card-title">Comprehensive Diesel Data</h3><p class="card-sub">Showing the latest 10 records by default — use search, filters, or pagination to see more.</p></div></div>
+
+        <div class="filter-grid">
+          <div class="field"><label>Vehicle Name / Code</label><input type="text" id="ddFilterVehicle" placeholder="e.g. Forklift-01 or DF01" oninput="onDieselFilterInput()"></div>
+          <div class="field"><label>Operator</label><input type="text" id="ddFilterOperator" placeholder="Operator name" oninput="onDieselFilterInput()"></div>
+          <div class="field"><label>Driver</label><input type="text" id="ddFilterDriver" placeholder="Driver name" oninput="onDieselFilterInput()"></div>
+          <div class="field"><label>From Date</label><input type="date" id="ddFilterFrom" onchange="loadDieselDataTable(1)"></div>
+          <div class="field"><label>To Date</label><input type="date" id="ddFilterTo" onchange="loadDieselDataTable(1)"></div>
+        </div>
+        <button class="btn outline small" onclick="clearDieselFilters()"><svg class="ic sm"><use href="#i-x"/></svg>Clear Filters</button>
+
+        <div id="dieselTableMsg" style="margin-top:10px;"></div>
+        <div class="table-wrap" style="margin-top:12px;">
+        <table id="dieselDataTable" class="data-table wide">
+          <thead><tr>
+            <th class="sortable" onclick="sortDieselData('entry_datetime')">Date/Time <span class="arrow" id="arrow_entry_datetime"></span></th>
+            <th class="sortable" onclick="sortDieselData('vehicle_name')">Vehicle <span class="arrow" id="arrow_vehicle_name"></span></th>
+            <th class="sortable" onclick="sortDieselData('quantity')">Qty (L) <span class="arrow" id="arrow_quantity"></span></th>
+            <th>Driver</th>
+            <th>Driver ID/Mobile</th>
+            <th>Operator</th>
+            <th>Meter</th>
+            <th class="sortable" onclick="sortDieselData('admin_reading')">Admin Reading (LTR) <span class="arrow" id="arrow_admin_reading"></span></th>
+            <th class="sortable" onclick="sortDieselData('operator_reading')">Operator Reading (LTR) <span class="arrow" id="arrow_operator_reading"></span></th>
+            <th>Meter Gap (LTR)</th>
+            <th>Action</th>
+          </tr></thead>
+          <tbody><tr><td colspan="11" style="color:var(--muted);">Loading...</td></tr></tbody>
+        </table>
+        </div>
+        <div class="pagination">
+          <span id="dieselPageInfo">-</span>
+          <div class="pg-btns">
+            <button class="btn small outline" id="dieselPrevBtn" onclick="changeDieselPage(-1)">‹ Prev</button>
+            <button class="btn small outline" id="dieselNextBtn" onclick="changeDieselPage(1)">Next ›</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ EDIT DIESEL ENTRY (opens as a modal) ============ -->
+      <div class="card hidden" id="dieselEditCard">
+        <div class="card-head"><span class="card-ic"><svg class="ic"><use href="#i-file"/></svg></span><h3 class="card-title">Edit Diesel Entry</h3></div>
+        <div id="dieselEditMsg"></div>
+        <input type="hidden" id="dieselEditId">
+        <div class="info-row"><div class="label">Vehicle</div><div class="value" id="dieselEditVehicleLabel">-</div></div>
+        <div class="field">
+          <label>Date &amp; Time</label>
+          <input type="datetime-local" id="dieselEditDatetime">
+        </div>
+        <div class="row2">
+          <div class="field"><label>Quantity (LTR)</label><input type="number" id="dieselEditQuantity" step="0.01" min="0"></div>
+          <div class="field"><label>Meter Reading</label><input type="number" id="dieselEditMeter" step="0.01" min="0"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Operator Name</label><input type="text" id="dieselEditOperatorName"></div>
+          <div class="field"><label>Operator Mobile</label><input type="text" id="dieselEditOperatorMobile"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Driver Name</label><input type="text" id="dieselEditDriverName"></div>
+          <div class="field"><label>Driver ID/Mobile</label><input type="text" id="dieselEditDriverIdMobile"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="dieselEditSaveBtn" onclick="saveDieselEdit()">Save Changes</button>
+          <button class="btn outline" onclick="cancelDieselEdit()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= VEHICLE VS DATE HEAT MAP ================= -->
+    <div class="page" id="page-heatmap">
+      <p class="page-sub">Daily diesel consumption (LTR) for every vehicle across the selected dates.</p>
+      <div class="card" id="hmCard">
+        <div class="filter-bar">
+          <div class="field"><label>Start Date</label><input type="date" id="hmFrom"></div>
+          <div class="field"><label>End Date</label><input type="date" id="hmTo"></div>
+        </div>
+        <div class="hm-toolbar">
+          <button class="btn outline" onclick="hmQuick('today')">Today</button>
+          <button class="btn outline" onclick="hmQuick('7d')">Last 7 Days</button>
+          <button class="btn outline" onclick="hmQuick('month')">This Month</button>
+          <button class="btn outline" onclick="hmQuick('lastmonth')">Last Month</button>
+          <button class="btn" onclick="hmApply()">Apply Filter</button>
+          <button class="btn outline" onclick="hmRefresh()"><svg class="ic sm"><use href="#i-refresh"/></svg>Refresh</button>
+          <button class="btn outline" onclick="hmExportExcel()"><svg class="ic sm"><use href="#i-download"/></svg>Excel</button>
+          <button class="btn outline" id="hmPdfBtn" onclick="hmExportPdf()"><svg class="ic sm"><use href="#i-download"/></svg>PDF</button>
+        </div>
+
+        <div id="hmMsg"></div>
+        <div class="hm-cards" id="hmCards"></div>
+
+        <div class="hm-controls">
+          <div class="field"><label>Search Vehicle</label><input type="text" id="hmSearch" placeholder="Vehicle name or code" oninput="hmRender()"></div>
+          <div class="field"><label>Sort By</label>
+            <select id="hmSort" onchange="hmRender()">
+              <option value="name">Vehicle Name</option>
+              <option value="total">Total Consumption</option>
+              <option value="avg">Average Daily Consumption</option>
+            </select>
+          </div>
+          <div class="field"><label>Order</label>
+            <select id="hmOrder" onchange="hmRender()">
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="hm-wrap" id="hmWrap"><table class="hm" id="hmTable"></table></div>
+
+        <div class="hm-legend" id="hmLegend">
+          <span><span class="zero"></span> 0</span>
+          <span id="hmLegendMin">Low</span>
+          <div class="bar" id="hmLegendBar"></div>
+          <span id="hmLegendMax">High</span>
+          <span>(green → yellow → orange → red, scaled to the highest cell shown)</span>
+        </div>
+      </div>
+      <div id="hmTooltip"></div>
+      <div id="hmEditOverlay" onclick="if(event.target===this)hmCloseEdit()">
+        <div id="hmEditBox">
+          <h3 style="font-size:17px;color:var(--navy);margin-bottom:4px;">Edit Diesel Consumption</h3>
+          <div id="hmEditInfo" style="font-size:13px;color:var(--muted);margin-bottom:14px;"></div>
+          <div id="hmEditMsg"></div>
+          <div id="hmEditRows"></div>
+          <div class="hm-e-actions">
+            <button class="btn" id="hmEditSaveBtn" onclick="hmSaveEdit()">Save Changes</button>
+            <button class="btn outline" onclick="hmCloseEdit()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= CREATE & GENERATE QR CODES ================= -->
+    <div class="page" id="page-create">
+      <p class="page-sub">Register a new vehicle and immediately generate its QR code, or produce a printable A4 sheet for existing vehicles.</p>
+
+      <div class="side-row">
+        <div class="card">
+          <div class="card-head"><span class="card-ic"><svg class="ic"><use href="#i-truck"/></svg></span><div><h3 class="card-title">Add a Vehicle</h3><p class="card-sub">Create a vehicle record and its QR code.</p></div></div>
+          <div id="createMsg"></div>
+          <div class="grid-2">
+            <div class="field">
+              <label>Vehicle Code (unique) <span class="req">*</span></label>
+              <input type="text" id="newCode" placeholder="e.g. XDT6986R" style="text-transform:uppercase;">
+            </div>
+            <div class="field">
+              <label>Vehicle Name <span class="req">*</span></label>
+              <input type="text" id="newName" placeholder="e.g. Dump Truck-6986">
+            </div>
+          </div>
+          <button class="btn full" id="createBtn" onclick="createVehicle()"><svg class="ic"><use href="#i-plus"/></svg>Create &amp; Generate QR Code</button>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="card-ic"><svg class="ic"><use href="#i-upload"/></svg></span><div><h3 class="card-title">Bulk Import via CSV</h3><p class="card-sub">Create many vehicles and QR codes at once from a CSV file.</p></div></div>
+          <div class="import-row">
+            <div class="dropzone" data-input="csvFileInput" onclick="document.getElementById('csvFileInput').click()">
+              <svg class="ic"><use href="#i-upload"/></svg><b>Drag &amp; drop CSV file here</b><span>or click to browse</span>
+            </div>
+            <div class="import-actions">
+              <button class="btn outline" onclick="downloadCsvTemplate()"><svg class="ic sm"><use href="#i-download"/></svg>Download CSV Template</button>
+              <button class="btn" onclick="document.getElementById('csvFileInput').click()"><svg class="ic sm"><use href="#i-upload"/></svg>Import CSV</button>
+            </div>
+            <input type="file" id="csvFileInput" accept=".csv,text/csv" style="display:none;" onchange="handleCsvFile(event)">
+          </div>
+          <details class="help">
+            <summary>CSV Format / Example &amp; Code Rules</summary>
+            <div class="help-body">
+              The file must have exactly these two columns, in this order, with this exact header:
+              <pre>vehicle_name,code
+Dump Truck-6986,XDT6986R
+Dump Truck-1618,XDT1618O
+Electric Forklift-01,XEF0001O
+Excavator-1,XEX0001O
+Forklift-01,XFL0001O
+Forklift-01 (Sanitary),SFL0001O
+Forklift-02,XFL0002O</pre>
+              <strong>8-character code structure:</strong>
+              <div class="table-wrap"><table class="data-table" style="min-width:420px;">
+                <thead><tr><th>Position</th><th>Meaning</th><th>Valid values</th></tr></thead>
+                <tbody>
+                  <tr><td>1st</td><td>Location</td><td>X = Monica/Monalisa, S = Sanitary</td></tr>
+                  <tr><td>2nd–3rd</td><td>Vehicle Type</td><td>Any 2 characters (e.g. PL, FL, DT, EF, EX)</td></tr>
+                  <tr><td>4th–7th</td><td>Vehicle Number</td><td>Exactly 4 digits (use last 4 digits if longer)</td></tr>
+                  <tr><td>8th</td><td>Ownership</td><td>O = Own, R = Rental</td></tr>
+                </tbody>
+              </table></div>
+            </div>
+          </details>
+          <div id="csvImportMsg" style="margin-top:12px;"></div>
+        </div>
+      </div>
+
+      <div class="card" id="newQrPreview" style="display:none;max-width:300px;text-align:center;">
+        <h3 class="card-title" style="margin-bottom:10px;">New QR Code Ready</h3>
+        <img id="newQrImg" alt="QR" style="width:180px;height:180px;max-width:100%;">
+        <div style="font-weight:700;margin-top:10px;color:var(--navy);" id="newQrCode"></div>
+        <div style="color:var(--muted);font-size:13px;" id="newQrName"></div>
+      </div>
+
+      <!-- ============ CSV IMPORT PREVIEW ============ -->
+      <div class="card" id="csvPreviewCard" style="display:none;">
+        <div class="card-head"><span class="card-ic"><svg class="ic"><use href="#i-file"/></svg></span><h3 class="card-title">Import Preview</h3></div>
+        <div id="csvPreviewSummary" style="margin-bottom:10px;"></div>
+        <div class="table-wrap"><table id="csvPreviewTable" class="data-table">
+          <thead><tr><th>Row</th><th>Vehicle Name</th><th>Code</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+        <div class="btn-row" style="margin-top:16px;">
+          <button class="btn" id="csvConfirmBtn" onclick="confirmCsvImport()">Confirm &amp; Create QR Codes</button>
+          <button class="btn outline" onclick="cancelCsvImport()">Cancel</button>
+        </div>
+        <div id="csvImportProgress" style="margin-top:12px;"></div>
+      </div>
+
+      <!-- ============ GENERATE / PRINT QR CODES ============ -->
+      <div class="card">
+        <div class="qr-top">
+          <div class="card-head"><span class="card-ic"><svg class="ic"><use href="#i-qr"/></svg></span><div><h3 class="card-title">Generate QR Codes</h3><p class="card-sub">Select vehicles to generate printable A4 QR labels (2 codes per page).</p></div></div>
+          <div class="sel-summary">
+            <span class="sel-pill"><svg class="ic sm"><use href="#i-checkc"/></svg><span><b id="vehSelCount">0</b> selected</span></span>
+            <span class="sel-total">of <b id="vehTotalCount">0</b> vehicles</span>
+            <button type="button" class="link-btn" onclick="setAllVehicleChecks(true)">Select All</button>|
+            <button type="button" class="link-btn" onclick="setAllVehicleChecks(false)">Deselect All</button>
+          </div>
+        </div>
+
+        <div id="generateMsg"></div>
+
+        <div class="toolbar">
+          <label class="search-box" id="vehFilterBox"><svg class="ic"><use href="#i-search"/></svg>
+            <input type="text" class="input" id="vehFilter" placeholder="Search vehicle name or code..." oninput="filterVehicleChecklist()" autocomplete="off">
+            <button type="button" class="search-clear" aria-label="Clear search" onclick="clearVehFilter()"><svg class="ic sm"><use href="#i-x"/></svg></button>
+          </label>
+        </div>
+        <div class="chips" id="vehChips">
+          <button type="button" class="chip active" data-cat="all" onclick="setVehCat('all')">All Vehicles</button>
+          <button type="button" class="chip" data-cat="forklift" onclick="setVehCat('forklift')">Forklifts</button>
+          <button type="button" class="chip" data-cat="dump" onclick="setVehCat('dump')">Dump Trucks</button>
+          <button type="button" class="chip" data-cat="excavator" onclick="setVehCat('excavator')">Excavators</button>
+          <button type="button" class="chip" data-cat="rental" onclick="setVehCat('rental')">Rental</button>
+        </div>
+        <div class="veh-meta"><span>Showing <b id="vehShownCount">0</b> vehicles</span><span>Select All / Deselect All apply to the vehicles currently shown.</span></div>
+
+        <div class="veh-scroll">
+          <div class="veh-grid" id="vehicleChecklist"></div>
+          <div class="empty-state hidden" id="vehEmpty"><svg class="ic"><use href="#i-search"/></svg><b>No vehicles found</b>Try a different name, code or category.</div>
+        </div>
+
+        <div class="action-bar">
+          <span class="card-sub" style="margin:0;">Tick vehicles above, then use <b>Delete Selected</b> to remove them.</span>
+          <div class="btn-row">
+            <button class="btn" id="genBtn" onclick="generateSelected()"><svg class="ic"><use href="#i-qr"/></svg>Generate QR Code(s)</button>
+            <button class="btn outline" id="printBtn" disabled onclick="window.print()"><svg class="ic"><use href="#i-printer"/></svg>Print / Save as PDF</button>
+            <button class="btn danger-outline" id="delVehBtn" onclick="deleteSelectedVehicles()">Delete Selected</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= DOWNLOAD REPORT ================= -->
+    <div class="page" id="page-report">
+      <p class="page-sub">Filter diesel transactions, review management analytics, and export an industrial-standard Excel or PDF report.</p>
+      <div class="card rp-panel">
+        <div class="rp-filters">
+          <div class="field"><label>From Date</label><input type="date" id="reportFrom"></div>
+          <div class="field"><label>To Date</label><input type="date" id="reportTo"></div>
+          <div class="field"><label>Vehicle</label><select id="reportVehicle"><option value="__ALL__">ALL VEHICLES</option></select></div>
+          <div class="field"><label>Driver</label><select id="reportDriver"><option value="__ALL__">ALL DRIVERS</option></select></div>
+        </div>
+        <div class="rp-actions">
+          <button class="btn" id="reportBtn" onclick="runReport()">Generate Report</button>
+          <button class="btn outline" onclick="resetReportFilters()">Reset Filters</button>
+          <button class="btn rp-teal" id="rpXlsBtn" onclick="downloadExcel()" disabled>Download Excel</button>
+          <button class="btn rp-navy" id="rpPdfBtn" onclick="downloadPdf()" disabled>Download PDF</button>
+        </div>
+        <div id="reportMsg" style="margin-top:12px;"></div>
+      </div>
+
+      <div id="rpResults" style="display:none;">
+        <div class="rp-kpis">
+          <div class="rp-kpi"><span>Total Diesel Consumption</span><b id="kpiTotal">-</b><small>LTR</small></div>
+          <div class="rp-kpi"><span>Total Transactions</span><b id="kpiTx">-</b><small>entries</small></div>
+          <div class="rp-kpi"><span>Total Vehicles Used</span><b id="kpiVeh">-</b><small>vehicles</small></div>
+          <div class="rp-kpi"><span>Total Drivers</span><b id="kpiDrv">-</b><small>drivers</small></div>
+          <div class="rp-kpi"><span>Avg. Quantity / Transaction</span><b id="kpiAvg">-</b><small>LTR</small></div>
+          <div class="rp-kpi hi"><span>Highest Consuming Vehicle</span><b id="kpiTop" style="font-size:16px;">-</b><small id="kpiTopQty"></small></div>
+        </div>
+
+        <div class="rp-charts">
+          <div class="card rp-cc wide">
+            <div class="rp-cc-head"><strong>Consumption Trend</strong>
+              <span class="rp-toggle"><button id="rpTm-daily" class="on" onclick="rpSetTime('daily')">Daily</button><button id="rpTm-monthly" onclick="rpSetTime('monthly')">Monthly</button><button id="rpTm-yearly" onclick="rpSetTime('yearly')">Yearly</button></span></div>
+            <div class="rp-canvas"><canvas id="rpCTime"></canvas></div>
+          </div>
+          <div class="card rp-cc wide"><div class="rp-cc-head"><strong>Vehicle-Wise Consumption (Top 15)</strong></div><div class="rp-canvas"><canvas id="rpCVeh"></canvas></div></div>
+          <div class="card rp-cc"><div class="rp-cc-head"><strong>Top 10 Vehicles by Consumption</strong></div><div class="rp-canvas tall"><canvas id="rpCTop"></canvas></div></div>
+          <div class="card rp-cc"><div class="rp-cc-head"><strong>Vehicle Consumption Distribution</strong></div><div class="rp-canvas tall"><canvas id="rpCDist"></canvas></div></div>
+          <div class="card rp-cc"><div class="rp-cc-head"><strong>Monthly Consumption Trend</strong></div><div class="rp-canvas"><canvas id="rpCMonth"></canvas></div></div>
+          <div class="card rp-cc"><div class="rp-cc-head"><strong>Driver-Wise Contribution</strong></div><div class="rp-canvas"><canvas id="rpCDrv"></canvas></div></div>
+        </div>
+
+        <div class="card"><strong class="rp-h">Vehicle-Wise Consumption Analysis</strong>
+          <div class="rp-scroll"><table class="rp-tbl" id="rpVehTbl"></table></div></div>
+        <div class="card"><strong class="rp-h">Lowest Consuming Vehicles (Bottom 10)</strong>
+          <div class="rp-scroll"><table class="rp-tbl" id="rpLowTbl"></table></div></div>
+        <div class="card"><strong class="rp-h">Driver-Wise Consumption Analysis</strong>
+          <div class="rp-scroll"><table class="rp-tbl" id="rpDrvTbl"></table></div></div>
+        <div class="card"><strong class="rp-h">Transaction Details</strong>
+          <div class="rp-scroll"><table class="rp-tbl" id="rpTxTbl"></table></div>
+          <div class="rp-pager"><button class="btn outline small" onclick="rpPage(-1)">&laquo; Prev</button><span id="rpPageInfo"></span><button class="btn outline small" onclick="rpPage(1)">Next &raquo;</button></div></div>
+      </div>
+    </div>
+
+    <!-- ================= DRIVER INFORMATION ================= -->
+    <div class="page" id="page-drivers">
+      <p class="page-sub">Add, search, edit, and remove drivers. Historical diesel records keep their own saved driver snapshot even after a driver is edited or deleted here.</p>
+
+      <div class="side-row">
+        <div class="card">
+          <div class="card-head"><span class="card-ic"><svg class="ic"><use href="#i-user"/></svg></span><h3 class="card-title" id="driverFormTitle">Add New Driver</h3></div>
+          <div id="driverFormMsg"></div>
+          <input type="hidden" id="driverEditId" value="">
+          <div class="field"><label>Driver Name</label><input type="text" id="driverFormName" placeholder="e.g. Abdul Karim"></div>
+          <div class="grid-2">
+            <div class="field"><label>Driver ID</label><input type="text" id="driverFormId" placeholder="e.g. DR-1025"></div>
+            <div class="field"><label>Driver Mobile Number</label><input type="text" id="driverFormMobile" placeholder="e.g. 017XXXXXXXX"></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn" id="driverSaveBtn" onclick="saveDriver()">Save Driver</button>
+            <button class="btn outline" id="driverCancelEditBtn" style="display:none;" onclick="resetDriverForm()">Cancel Edit</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-ic"><svg class="ic"><use href="#i-upload"/></svg></span><div><h3 class="card-title">Bulk Import via CSV</h3><p class="card-sub">Add many drivers at once from a CSV file.</p></div></div>
+          <div class="import-row">
+            <div class="dropzone" data-input="driverCsvFileInput" onclick="document.getElementById('driverCsvFileInput').click()">
+              <svg class="ic"><use href="#i-upload"/></svg><b>Drag &amp; drop CSV file here</b><span>or click to browse</span>
+            </div>
+            <div class="import-actions">
+              <button class="btn outline" onclick="downloadDriverCsvTemplate()"><svg class="ic sm"><use href="#i-download"/></svg>Download CSV Template</button>
+              <button class="btn" onclick="document.getElementById('driverCsvFileInput').click()"><svg class="ic sm"><use href="#i-upload"/></svg>Import CSV</button>
+            </div>
+            <input type="file" id="driverCsvFileInput" accept=".csv,text/csv" style="display:none;" onchange="handleDriverCsvFile(event)">
+          </div>
+          <details class="help">
+            <summary>CSV Format / Example</summary>
+            <div class="help-body">
+              The file must have exactly these three columns, in this order, with this exact header:
+              <pre>driver_name,driver_id,driver_mobile_number
+Abdul Karim,DR-1025,017XXXXXXXX
+Rahim Uddin,DR-1026,018XXXXXXXX
+Kamal Hossain,DR-1027,019XXXXXXXX</pre>
+              No specific ID/mobile format is enforced — any value is accepted as long as it's not empty and not already used by another driver.
+            </div>
+          </details>
+          <div id="driverCsvImportMsg" style="margin-top:12px;"></div>
+        </div>
+      </div>
+
+      <!-- ============ DRIVER CSV IMPORT PREVIEW ============ -->
+      <div class="card" id="driverCsvPreviewCard" style="display:none;">
+        <div class="card-head"><span class="card-ic"><svg class="ic"><use href="#i-file"/></svg></span><h3 class="card-title">Import Preview</h3></div>
+        <div id="driverCsvPreviewSummary" style="margin-bottom:10px;"></div>
+        <div class="table-wrap"><table id="driverCsvPreviewTable" class="data-table">
+          <thead><tr><th>Row</th><th>Driver Name</th><th>Driver ID</th><th>Mobile Number</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+        <div class="btn-row" style="margin-top:16px;">
+          <button class="btn" id="driverCsvConfirmBtn" onclick="confirmDriverCsvImport()">Confirm &amp; Create Drivers</button>
+          <button class="btn outline" onclick="cancelDriverCsvImport()">Cancel</button>
+        </div>
+        <div id="driverCsvImportProgress" style="margin-top:12px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <label class="search-box"><svg class="ic"><use href="#i-search"/></svg><input type="text" class="input" id="driverSearchInput" placeholder="Search by driver name, driver ID or mobile number..." oninput="onDriverSearchInput()"></label>
+        </div>
+        <div id="driverListMsg" style="margin-bottom:8px;"></div>
+        <div class="table-wrap"><table id="driverTable" class="data-table">
+          <thead><tr><th>Driver Name</th><th>Driver ID</th><th>Mobile Number</th><th>Action</th></tr></thead>
+          <tbody><tr><td colspan="4" style="color:var(--muted);">Loading...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ================= CONSUMPTION RATE ================= -->
+    <div class="page" id="page-rates">
+      <p class="page-sub">Set the average daily diesel consumption rate shown on each vehicle's "Last Consumption" card.</p>
+
+      <div class="side-row">
+        <div class="card">
+          <div class="card-head"><span class="card-ic"><svg class="ic"><use href="#i-fuel"/></svg></span><h3 class="card-title" id="rateFormTitle">Set Consumption Rate</h3></div>
+          <div id="rateFormMsg"></div>
+          <div class="field"><label>Vehicle</label>
+            <select id="rateFormVehicle"><option value="">Loading vehicles...</option></select></div>
+          <div class="field"><label>Consumption Rate (Litres / Day)</label>
+            <input type="number" id="rateFormValue" placeholder="e.g. 12.5" inputmode="decimal" step="0.01" min="0"></div>
+          <div class="btn-row">
+            <button class="btn" id="rateSaveBtn" onclick="saveRate()">Save Rate</button>
+            <button class="btn outline" id="rateCancelEditBtn" style="display:none;" onclick="resetRateForm()">Cancel Edit</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-ic"><svg class="ic"><use href="#i-upload"/></svg></span><div><h3 class="card-title">Bulk Import via CSV</h3><p class="card-sub">Set rates for many vehicles at once from a CSV file.</p></div></div>
+          <div class="import-row">
+            <div class="dropzone" data-input="rateCsvFileInput" onclick="document.getElementById('rateCsvFileInput').click()">
+              <svg class="ic"><use href="#i-upload"/></svg><b>Drag &amp; drop CSV file here</b><span>or click to browse</span>
+            </div>
+            <div class="import-actions">
+              <button class="btn outline" onclick="downloadRateCsvTemplate()"><svg class="ic sm"><use href="#i-download"/></svg>Download CSV Template</button>
+              <button class="btn" onclick="document.getElementById('rateCsvFileInput').click()"><svg class="ic sm"><use href="#i-upload"/></svg>Import CSV</button>
+            </div>
+            <input type="file" id="rateCsvFileInput" accept=".csv,text/csv" style="display:none;" onchange="handleRateCsvFile(event)">
+          </div>
+          <details class="help">
+            <summary>CSV Format / Example</summary>
+            <div class="help-body">
+              The file must have exactly these two columns, in this order, with this exact header:
+              <pre>code,consumption_rate_per_day
+DF01,12.5
+DF02,10</pre>
+              The <strong>code</strong> must already exist in the vehicle list (created via "Create New QR Code"). Rows with an unknown code, a missing rate, or a non-numeric rate are marked invalid and skipped.
+            </div>
+          </details>
+          <div id="rateCsvImportMsg" style="margin-top:12px;"></div>
+        </div>
+      </div>
+
+      <!-- ============ RATE CSV IMPORT PREVIEW ============ -->
+      <div class="card" id="rateCsvPreviewCard" style="display:none;">
+        <div class="card-head"><span class="card-ic"><svg class="ic"><use href="#i-file"/></svg></span><h3 class="card-title">Import Preview</h3></div>
+        <div id="rateCsvPreviewSummary" style="margin-bottom:10px;"></div>
+        <div class="table-wrap"><table id="rateCsvPreviewTable" class="data-table">
+          <thead><tr><th>Row</th><th>Code</th><th>Vehicle</th><th>Rate (L/day)</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+        <div class="btn-row" style="margin-top:16px;">
+          <button class="btn" id="rateCsvConfirmBtn" onclick="confirmRateCsvImport()">Confirm &amp; Save Rates</button>
+          <button class="btn outline" onclick="cancelRateCsvImport()">Cancel</button>
+        </div>
+        <div id="rateCsvImportProgress" style="margin-top:12px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <label class="search-box"><svg class="ic"><use href="#i-search"/></svg><input type="text" class="input" id="rateSearchInput" placeholder="Search by vehicle code or name..." oninput="onRateSearchInput()"></label>
+        </div>
+        <div id="rateListMsg" style="margin-bottom:8px;"></div>
+        <div class="table-wrap"><table id="rateTable" class="data-table">
+          <thead><tr><th>Code</th><th>Vehicle</th><th>Rate (L/day)</th><th>Action</th></tr></thead>
+          <tbody><tr><td colspan="4" style="color:var(--muted);">Loading...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ================= DISPENSER METER READING ================= -->
+    <div class="page" id="page-dispenser">
+      <div class="grid-3" id="dmKpis"></div>
+      <p class="page-sub">Correct/synchronize the recorded dispenser reading with the actual physical meter. Every diesel transaction continues to update this table via the existing dispenser-meter logic — this only lets you set the record straight for a given date.</p>
+
+      <div class="card" style="max-width:560px;">
+        <button class="btn" id="dispenserToggleFormBtn" onclick="toggleDispenserForm()"><svg class="ic"><use href="#i-plus"/></svg>Set Correct Meter Reading</button>
+        <div id="dispenserForm" class="hidden" style="margin-top:16px;">
+          <div id="dispenserFormMsg"></div>
+          <div class="grid-2">
+            <div class="field"><label>Date</label><input type="date" id="dispenserFormDate"></div>
+            <div class="field"><label>Current/Correct Meter Reading (LTR)</label><input type="number" id="dispenserFormReading" placeholder="e.g. 160668.43" step="0.01"></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn" id="dispenserSaveBtn" onclick="saveDispenserReading()">Save Reading</button>
+            <button class="btn outline" onclick="toggleDispenserForm(false)">Cancel</button>
+          </div>
+          <p style="font-size:12px;color:var(--muted);margin-top:10px;">If a record already exists for this date, it will be updated with this corrected value. Records for every other date are left untouched.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="filter-bar">
+          <div class="field"><label>Search Date (YYYY-MM-DD)</label><input type="text" id="dmrSearch" placeholder="2026-09-18" onchange="loadDispenserTable(1)"></div>
+          <div class="field"><label>From Date</label><input type="date" id="dmrFilterFrom" onchange="loadDispenserTable(1)"></div>
+          <div class="field"><label>To Date</label><input type="date" id="dmrFilterTo" onchange="loadDispenserTable(1)"></div>
+          <div class="field" style="flex:0 0 auto;"><button class="btn outline" onclick="clearDispenserFilters()"><svg class="ic sm"><use href="#i-x"/></svg>Clear Filters</button> <button class="btn outline" onclick="loadDispenserTable(1)">Refresh</button></div>
+        </div>
+
+        <div id="dispenserTableMsg" style="margin-top:6px;"></div>
+        <div class="table-wrap" style="margin-top:10px;">
+        <table id="dispenserTable" class="data-table">
+          <thead><tr>
+            <th class="sortable" onclick="sortDispenserData('date')">Date <span class="arrow" id="darrow_date">▼</span></th>
+            <th class="sortable" onclick="sortDispenserData('last_meter_reading')">Last Meter Reading (LTR) <span class="arrow" id="darrow_last_meter_reading"></span></th>
+            <th class="sortable" onclick="sortDispenserData('updated_at')">Last Updated <span class="arrow" id="darrow_updated_at"></span></th>
+            <th>Actions</th>
+          </tr></thead>
+          <tbody><tr><td colspan="4" style="color:var(--muted);">Loading...</td></tr></tbody>
+        </table>
+        </div>
+        <div class="pagination">
+          <span id="dispenserPageInfo">-</span>
+          <div class="pg-btns">
+            <button class="btn small outline" id="dispenserPrevBtn" onclick="changeDispenserPage(-1)">‹ Prev</button>
+            <button class="btn small outline" id="dispenserNextBtn" onclick="changeDispenserPage(1)">Next ›</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= OPERATOR DISPENSER METER READING ================= -->
+    <div class="page" id="page-opmeter">
+      <p class="page-sub">Actual physical readings submitted by operators (<code>operator_dispenser_meter_reading</code>). Editing or deleting never rewrites historical diesel transactions.</p>
+      <div class="grid-3" id="omKpis"></div>
+      <div class="card">
+        <div class="filter-bar">
+          <div class="field"><label>Search Operator</label><input type="text" id="omSearch" placeholder="Operator name..." oninput="mtDebounce('om')"></div>
+          <div class="field"><label>Operator</label><select id="omOperator" onchange="omLoad(1)"><option value="">All</option></select></div>
+          <div class="field"><label>Type</label><select id="omType" onchange="omLoad(1)"><option value="">All</option><option value="opening">Opening</option><option value="dispense">Dispense</option><option value="closing">Closing</option></select></div>
+          <div class="field"><label>From</label><input type="date" id="omFrom" onchange="omLoad(1)"></div>
+          <div class="field"><label>To</label><input type="date" id="omTo" onchange="omLoad(1)"></div>
+          <div class="field" style="flex:0 0 auto;"><button class="btn outline" onclick="omClear()">Clear</button> <button class="btn outline" onclick="omLoad(1,true)">Refresh</button></div>
+        </div>
+        <div id="omMsg" style="margin-top:6px;"></div>
+        <div class="table-wrap" style="margin-top:10px;"><table class="data-table" id="omTable"><thead><tr>
+          <th>ID</th><th>Operator Name</th>
+          <th class="sortable" onclick="omSort('entry_datetime')">Entry Date &amp; Time <span class="arrow" id="omA_entry_datetime">▼</span></th>
+          <th class="sortable" onclick="omSort('meter_reading')">Meter Reading (LTR) <span class="arrow" id="omA_meter_reading"></span></th>
+          <th>Reading Type</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+        <div class="pagination"><span id="omInfo">-</span><div class="pg-btns">
+          <button class="btn small outline" id="omPrev" onclick="omLoad(omPage-1)">‹ Prev</button><button class="btn small outline" id="omNext" onclick="omLoad(omPage+1)">Next ›</button></div></div>
+      </div>
+    </div>
+
+    <!-- ================= DISPENSER METER RECONCILIATION ================= -->
+    <div class="page" id="page-recon">
+      <p class="page-sub">Compares the Admin Reading and Operator Reading saved with every diesel transaction. Gap = Operator Reading − Admin Reading (shown as-is, never forced to zero).</p>
+      <div class="grid-3" id="rcKpis"></div>
+      <div class="card">
+        <div class="filter-bar">
+          <div class="field"><label>Search</label><input type="text" id="rcSearch" placeholder="Vehicle / code / operator" oninput="mtDebounce('rc')"></div>
+          <div class="field"><label>Operator</label><select id="rcOperator" onchange="rcRender(1)"><option value="">All</option></select></div>
+          <div class="field"><label>Reading Type</label><select id="rcType" onchange="rcRender(1)"><option value="">All</option><option value="dispense">Dispense</option><option value="opening">Opening</option><option value="closing">Closing</option></select></div>
+          <div class="field"><label>Gap</label><select id="rcGap" onchange="rcRender(1)"><option value="">All</option><option value="pos">Positive Gap</option><option value="neg">Negative Gap</option><option value="zero">Matched (Zero)</option></select></div>
+          <div class="field"><label>From</label><input type="date" id="rcFrom" onchange="rcLoad()"></div>
+          <div class="field"><label>To</label><input type="date" id="rcTo" onchange="rcLoad()"></div>
+          <div class="field" style="flex:0 0 auto;"><button class="btn outline" onclick="rcLoad()">Refresh</button></div>
+        </div>
+        <div id="rcMsg" style="margin-top:6px;"></div>
+        <div class="table-wrap" style="margin-top:10px;"><table class="data-table" id="rcTable"><thead><tr>
+          <th>Date/Time</th><th>Operator</th><th>Reading Type</th><th>Vehicle</th><th>Admin Reading</th><th>Operator Reading</th><th>Gap</th><th>Diesel Qty (L)</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+        <div class="pagination"><span id="rcInfo">-</span><div class="pg-btns">
+          <button class="btn small outline" id="rcPrev" onclick="rcRender(rcPage-1)">‹ Prev</button><button class="btn small outline" id="rcNext" onclick="rcRender(rcPage+1)">Next ›</button></div></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-timewise">
+      <p class="page-sub">Individual diesel transactions plotted at their exact recorded times — view one or many dates and step backward or forward in time.</p>
+            <div class="card" id="twCard">
+        <div class="card-head"><span class="card-ic"><svg class="ic"><use href="#i-chart"/></svg></span><div><h3 class="card-title">Time-Wise Vehicle Consumption Analysis</h3><p class="card-sub">Every diesel transaction at its exact recorded time. Pick one or several dates, then move earlier/later in time.</p></div></div>
+        <div class="filter-bar">
+          <div class="field"><label>From Date</label><input type="date" id="twDate"></div>
+          <div class="field"><label>To Date</label><input type="date" id="twDateTo"></div>
+          <div class="field"><label>Start Time</label><input type="time" id="twStart"></div>
+          <div class="field"><label>End Time</label><input type="time" id="twEnd"></div>
+          <div class="field"><label>Vehicle</label><select id="twVehicle" onfocus="twFillVehicles()"><option value="">All Vehicles</option></select></div>
+          <div class="field" style="flex:0 0 auto;"><button class="btn" onclick="twLoad()">Apply Filter</button> <button class="btn outline" onclick="twReset()">Reset</button></div>
+        </div>
+        <div class="tw-nav"><button class="btn small outline" onclick="twShift(-1)">◀ Earlier</button><span id="twRange"></span><button class="btn small outline" onclick="twShift(1)">Later ▶</button></div>
+        <div id="twMsg"></div>
+        <div class="grid-3" id="twKpis" style="margin-top:6px;"></div>
+        <div class="tw-legend" id="twLegend"></div>
+        <div class="tw-box" id="twBox">
+          <div class="tw-head"><span><svg class="ic sm"><use href="#i-chart"/></svg> Diesel Consumption Over Time</span>
+            <span class="tw-tools"><button title="Zoom in" onclick="twZoom(1.6)">＋</button><button title="Zoom out" onclick="twZoom(1/1.6)">－</button><button title="Reset zoom" onclick="twZoom(0)">⟲</button><button title="Full screen" onclick="twFull()">⛶</button></span></div>
+          <div class="tw-plot"><svg id="twY" class="tw-y"></svg><div class="tw-scroll" id="twScroll"><svg id="twSvg"></svg></div></div>
+          <div class="tw-tip hidden" id="twTip"></div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px;">Hover/tap a point for details · Ctrl + mouse-wheel or the buttons to zoom · scroll sideways when zoomed · click a legend name to hide/show a vehicle.</p>
+      </div>
+    </div>
+
+    <!-- ================= OPERATOR INFORMATION ================= -->
+    <div class="page" id="page-operators">
+      <p class="page-sub">Manage operator login accounts (used by the Diesel Tracker's operator login). Uses the existing <code>operator_login</code> table — no separate table is created.</p>
+
+      <div class="card" style="max-width:760px;">
+        <div class="card-head"><span class="card-ic"><svg class="ic"><use href="#i-hardhat"/></svg></span><h3 class="card-title" id="operatorFormTitle">Add New Operator</h3></div>
+        <div id="operatorFormMsg"></div>
+        <input type="hidden" id="operatorEditId" value="">
+        <div class="grid-2">
+          <div class="field"><label>Name</label><input type="text" id="operatorFormName" placeholder="e.g. Anas"></div>
+          <div class="field"><label>Mobile Number</label><input type="text" id="operatorFormMobile" placeholder="e.g. 017XXXXXXXX"></div>
+          <div class="field"><label>Password</label><input type="text" id="operatorFormPass" placeholder="Operator login password"></div>
+          <div class="field"><label>XIC_ID</label><input type="number" id="operatorFormXicId" placeholder="e.g. 1025" inputmode="numeric" step="1"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="operatorSaveBtn" onclick="saveOperator()">Save Operator</button>
+          <button class="btn outline" id="operatorCancelEditBtn" style="display:none;" onclick="resetOperatorForm()">Cancel Edit</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <label class="search-box"><svg class="ic"><use href="#i-search"/></svg><input type="text" class="input" id="operatorSearchInput" placeholder="Search by name, mobile or XIC_ID..." oninput="onOperatorSearchInput()"></label>
+        </div>
+        <div id="operatorListMsg" style="margin-bottom:8px;"></div>
+        <div class="table-wrap"><table id="operatorTable" class="data-table">
+          <thead><tr><th>Name</th><th>Mobile</th><th>XIC_ID</th><th>Password</th><th>Created</th><th>Action</th></tr></thead>
+          <tbody><tr><td colspan="6" style="color:var(--muted);">Loading...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ================= MODALS (USER ACCESS / CHANGE PASSWORD) ================= -->
+<!-- generic edit / confirm dialogs for the meter pages -->
+<div class="ua-modal hidden" id="mtModal"><div class="ua-box">
+  <div class="modal-head"><h3 id="mtTitle">Edit</h3></div>
+  <div class="modal-body"><div id="mtMsg"></div><div id="mtBody"></div></div>
+  <div class="modal-foot"><button class="btn outline" onclick="mtClose()">Cancel</button><button class="btn" id="mtOk">Save</button></div>
+</div></div>
+<div class="ua-modal hidden" id="uaModal"><div class="ua-box">
+  <div class="modal-head"><h3 id="uaTitle">Add New User</h3></div>
+  <div class="modal-body">
+    <div id="uaModalMsg"></div>
+    <div class="field"><label>Email Address</label><input type="email" id="uaEmail" autocomplete="off"></div>
+    <div id="uaPwWrap">
+      <div class="field"><label>Password</label><input type="password" id="uaPw" autocomplete="new-password"></div>
+      <div class="field"><label>Confirm Password</label><input type="password" id="uaPw2" autocomplete="new-password"></div>
+    </div>
+    <label class="lbl-sm">Dashboard Access</label>
+    <div class="ua-chk" id="uaChecks"></div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn outline" onclick="uaClose()">Cancel</button>
+    <button class="btn" id="uaSaveBtn" onclick="uaSave()">Save</button>
+  </div>
+</div></div>
+
+<div class="ua-modal hidden" id="pwModal"><div class="ua-box">
+  <div class="modal-head"><h3 id="pwTitle">Change Password</h3></div>
+  <div class="modal-body">
+    <div id="pwMsg"></div>
+    <div class="field" id="pwCurWrap"><label id="pwCurLbl">Current Password</label><input type="password" id="pwCur" autocomplete="current-password"></div>
+    <div class="field"><label>New Password</label><input type="password" id="pwNew" autocomplete="new-password"></div>
+    <div class="field"><label>Confirm New Password</label><input type="password" id="pwNew2" autocomplete="new-password"></div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn outline" onclick="pwClose()">Cancel</button>
+    <button class="btn" id="pwSaveBtn" onclick="pwSave()">Update Password</button>
+  </div>
+</div></div>
+
+<!-- Hidden print-only areas -->
+<div id="qrPrintArea"></div>
+<div id="reportPrintArea"></div>
+
+<script defer src="../Assets/js/diesel/app.js"></script>
+<script defer src="../Assets/js/diesel/shell.js"></script>
+<script defer src="../Assets/js/diesel/meter-ui.js"></script>
+<script defer src="../Assets/js/diesel/extras.js"></script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>XiC (Automobile)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          navy:  { 900:'#0f2540', 800:'#173a5e', 700:'#1f4a73' },
+          teal:  { 500:'#14b8a6', 600:'#0d9488', 700:'#0f766e' },
+          pagebg:'#f4f6f9'
+        },
+        fontFamily: {
+          sans: ['Inter','Segoe UI','Roboto','Helvetica','Arial','sans-serif']
+        }
+      }
+    }
+  };
+</script>
+<script>try{var s=JSON.parse(localStorage.getItem('vmsp_session')||'null');if(s&&s.profileId)document.documentElement.classList.add('has-sess');}catch(e){}</script>
+<style>html.has-sess #loginScreen{display:none!important}#bootLoad{display:none}html.has-sess #bootLoad{display:flex;position:fixed;inset:0;align-items:center;justify-content:center;background:#f4f6f9;color:#475569;font:600 14px Arial,sans-serif;z-index:50}</style>
+<link rel="stylesheet" href="../Assets/css/style.css">
+<link rel="stylesheet" href="../Assets/css/common.css">
+<link rel="stylesheet" href="../Assets/css/responsive.css">
+<script defer src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script defer src="https://unpkg.com/lucide@latest"></script>
+<script defer src="../Assets/js/config.js"></script>
+<script defer src="../Assets/js/supabase.js"></script>
+<script defer src="../Assets/js/auth.js"></script>
+<script defer src="../Assets/js/common.js"></script>
+<script defer src="../Assets/js/router.js"></script>
+<script defer src="../Assets/js/performance.js"></script>
+</head>
+<body class="min-h-screen">
+
+<!-- =================================================================
+     LOGIN SCREEN
+     ================================================================= -->
+<div id="bootLoad">Loading…</div>
+<div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-navy-900 via-navy-800 to-navy-700">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="relative w-10 h-10 rounded-lg bg-teal-500 flex items-center justify-center text-white">
+        <i data-lucide="truck" class="w-6 h-6"></i><img src="../Assets/images/logo.png" alt="" class="absolute inset-0 w-full h-full object-contain bg-white rounded-lg" onerror="this.remove()">
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-navy-900">XiC (Automobile)</h1>
+        <p class="text-xs text-slate-500">Concept of ROM</p>
+      </div>
+    </div>
+    <h2 class="text-xl font-semibold mb-1">Sign in</h2>
+    <p class="text-sm text-slate-500 mb-5">Enter your credentials to continue.</p>
+
+    <form id="loginForm" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Email</label>
+        <input id="loginEmail" type="email" required
+          class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Password</label>
+        <input id="loginPassword" type="password" required
+          class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none" />
+      </div>
+      <div id="loginError" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2"></div>
+      <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg py-2.5 transition flex items-center justify-center gap-2">
+        <i data-lucide="log-in" class="w-4 h-4"></i> Sign in
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- =================================================================
+     APP SHELL
+     ================================================================= -->
+<div id="app" class="hidden min-h-screen flex flex-col">
+  <!-- Top bar: brand + page switcher only -->
+  <header class="bg-white sticky top-0 z-40">
+    <div class="h-16 flex items-center justify-between px-4 lg:px-8">
+      <div class="flex items-center min-w-0"><a onclick="var h=location.hash;if(h&&h!=='#home'&&history.length>1){history.back();}else{location.href='../index.html';}return false;" href="../index.html" title="Back" aria-label="Back" class="flex items-center gap-1 text-sm font-semibold text-slate-700 hover:text-teal-700 mr-3 shrink-0"><i data-lucide="arrow-left" class="w-4 h-4"></i><span>Back</span></a>
+      <button type="button" onclick="route('home')" class="flex items-center gap-3 text-left" title="Home - all applications">
+        <span class="relative w-9 h-9 rounded-lg bg-teal-500 flex items-center justify-center text-white"><i data-lucide="truck" class="w-5 h-5"></i><img src="../Assets/images/logo.png" alt="" class="absolute inset-0 w-full h-full object-contain bg-white rounded-lg" onerror="this.remove()"></span>
+        <span class="h-8 w-px bg-slate-200"></span>
+        <span class="leading-tight"><span id="pageTitle" class="block text-[15px] font-bold text-navy-900">XiC (Automobile)</span>
+          <span id="pageSub" class="block text-xs text-slate-500">Concept of ROM</span></span>
+      </button></div>
+      <div class="relative">
+        <button id="swBtn" type="button" onclick="toggleSwitcher(event)" title="Switch page" aria-label="Switch page" class="w-10 h-10 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-700"><i data-lucide="layout-grid" class="w-5 h-5"></i></button>
+        <div id="swPanel" class="hidden absolute right-0 top-12 w-[min(360px,calc(100vw-1.5rem))] bg-white border border-slate-200 rounded-xl shadow-2xl z-50">
+          <div class="p-3 border-b border-slate-100 flex items-center gap-2">
+            <button type="button" onclick="swGo('home')" class="flex items-center gap-2 text-sm font-medium text-teal-700 hover:bg-teal-50 rounded-lg px-2.5 py-2 whitespace-nowrap"><i data-lucide="home" class="w-4 h-4"></i> All applications</button>
+            <input id="swSearch" type="text" autocomplete="off" placeholder="Find a page…" oninput="swFilter(this.value)" class="flex-1 min-w-0 border border-slate-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-teal-500"/>
+          </div>
+          <div id="swList" class="p-2 max-h-[60vh] overflow-y-auto scroll-thin"></div>
+          <div class="p-3 border-t border-slate-100 flex items-center justify-between gap-3 text-xs">
+            <div id="swUser" class="min-w-0"></div>
+            <button type="button" onclick="logout()" title="Logout" aria-label="Logout" class="shrink-0 p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hdr-line"></div>
+  </header>
+  <!-- Page container -->
+  <main id="page" class="flex-1 p-4 lg:p-8 overflow-x-auto"></main>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed inset-0 z-[80] hidden pointer-events-none">
+  <div id="toastBox" class="px-4 py-3 rounded-lg shadow-lg text-sm text-white flex items-center gap-2"></div>
+</div>
+
+<!-- Modal host -->
+<div id="modalHost"></div>
+<div id="dialogHost"></div>
+
+</body>
+</html>
