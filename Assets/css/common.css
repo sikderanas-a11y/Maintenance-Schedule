@@ -1,0 +1,5 @@
+/* common.css — shared portal / loader styles */
+.page-loader{display:flex;align-items:center;gap:10px;color:#475569;font-size:14px;padding:12px}
+.page-loader i{width:18px;height:18px;border:3px solid #cbd5e1;border-top-color:#0d9488;border-radius:50%;animation:pl-spin .7s linear infinite}
+@keyframes pl-spin{to{transform:rotate(360deg)}}
+#page{min-height:60vh}
